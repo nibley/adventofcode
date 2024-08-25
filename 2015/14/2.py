@@ -16,12 +16,13 @@ def simulate_race(seconds):
                     distances[reindeer_name] += flight_speed
                 else:
                     remaining_rests[reindeer_name] -= 1
-            elif remaining_flight == 0: # enter rest
-                remaining_rests[reindeer_name] = rest_time - 1 # rest one second now
-                remaining_flights[reindeer_name] = -1 # mark resting
             else: # flying
-                remaining_flights[reindeer_name] -= 1
-                distances[reindeer_name] += flight_speed
+                if remaining_flight == 0: # enter rest
+                    remaining_rests[reindeer_name] = rest_time - 1 # rest one second now
+                    remaining_flights[reindeer_name] = -1 # mark resting
+                else:
+                    remaining_flights[reindeer_name] -= 1
+                    distances[reindeer_name] += flight_speed
 
         max_distance = sorted(distances.items(), key=lambda item: item[1])[-1][1]
         for reindeer_name in reindeer_names:
