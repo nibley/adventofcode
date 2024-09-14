@@ -1,10 +1,10 @@
 import re
-import os
 
 def increment_password(password):
     reversed_password = reversed(password)
     result = ''
-    carry = True # true initially triggers the low-digit increment
+    # true initially triggers the first low-digit increment
+    carry = True
     for c in reversed_password:
         if carry and c == 'z':
             result = 'a' + result
@@ -35,16 +35,8 @@ def is_valid_password(password):
     
     return False
 
-password = ''
-if not os.path.isfile('passwords.txt'):
-    password = input()
-    with open('passwords.txt', 'w') as passwords_file:
-        for i in range(1000000):
-            password = increment_password(password)
-            passwords_file.write(f'{password}\n')
+password = input()
+while not is_valid_password(password):
+    password = increment_password(password)
 
-with open('passwords.txt', 'r') as passwords_file:
-    for line in passwords_file:
-        if is_valid_password(line):
-            print(line)
-            break
+print(password)
