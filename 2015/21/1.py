@@ -45,14 +45,12 @@ store = {
 }
 
 def populate_inventories():
-    weapon_inventories = [ (weapon,) for weapon in weapon_names ]
-    
-    armor_inventories = [ (armor,) for armor in armor_names ] + [ () ]
-    
-    ring_inventories = []
-    ring_inventories.extend(list(combinations(ring_names, 2)))
-    ring_inventories.extend(list(combinations(ring_names, 1)))
-    ring_inventories.append(())
+    weapon_inventories = combinations(weapon_names, 1)
+    armor_inventories = [ *combinations(armor_names, 1), () ]
+    ring_inventories = [
+        *combinations(ring_names, 1),
+        *combinations(ring_names, 2),
+        () ]
 
     for weapon_inventory in weapon_inventories:
         for armor_inventory in armor_inventories:
@@ -76,7 +74,7 @@ def fight(inventory):
             break
         
         fight_hp -= boss_attack
-    
+
     return fight_hp > 0
 
 def cost(inventory):
@@ -96,6 +94,8 @@ for inventory in inventories:
     if fight(inventory):
         win_costs[inventory] = cost(inventory)
 
-best_inventory, best_cost = sorted(win_costs.items(), key=lambda item: item[1])[0]
+best_inventory, best_cost = sorted(
+    win_costs.items(),
+    key=lambda item: item[1])[0]
 print(best_inventory)
 print(best_cost)
