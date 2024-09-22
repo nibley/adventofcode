@@ -1,37 +1,4 @@
-square = int(input())
-
-last_square_in_spiral_layer = [1]
-# for i in range(1, 5):
-layer = 1
-while True:
-    last_in_layer = last_square_in_spiral_layer[layer - 1] + (8 * layer)
-    last_square_in_spiral_layer.append(last_in_layer)
-
-    if square <= last_in_layer:
-        break
-    
-    layer += 1
-
-print()
-print(square)
-print(f'layer {layer}')
-
-side_length_in_layer = 2 * layer + 1
-print(f'side {side_length_in_layer}')
-
-steps_from_last_in_layer = last_square_in_spiral_layer[layer] - square
-steps_from_corner = steps_from_last_in_layer % (side_length_in_layer - 1)
-steps_from_mid_side = abs(layer - steps_from_corner)
-print(f'steps {steps_from_mid_side}')
-
-print(steps_from_mid_side + layer)
-
-'''
-1
-3
-5
-7
-'''
+target_value = int(input())
 
 '''
 37  36  35  34  33  32  31
@@ -41,5 +8,61 @@ print(steps_from_mid_side + layer)
 41  20   7   8   9  10  27
 42  21  22  23  24  25  26
 43  44  45  46  47  48  49
-
 '''
+
+def spiral_position_generator():
+    x = 0
+    y = 0
+    yield (x, y)
+    side_length = 1
+    
+    while True:
+        side_length += 2
+
+        x += 1 # step right
+        yield (x, y)
+
+        for _ in range(side_length - 2): # go up
+            y += 1
+            yield (x, y)
+
+        for _ in range(side_length - 1): # go left
+            x -= 1
+            yield (x, y)
+
+        for _ in range(side_length - 1): # go down
+            y -= 1
+            yield (x, y)
+
+        for _ in range(side_length - 1): # go right
+            x += 1
+            yield (x, y)
+
+def generate_cell(position):
+    x, y = position
+    return sum(map(
+        lambda position: grid.get(position, 0),
+        [
+            (x - 1, y + 1),
+            (x    , y + 1),
+            (x + 1, y + 1),
+            (x - 1, y    ),
+            (x + 1, y    ),
+            (x - 1, y - 1),
+            (x    , y - 1),
+            (x + 1, y - 1),
+        ]))
+
+grid = { (0, 0): 1 }
+g = spiral_position_generator()
+next(g) # filled in first cell manually
+
+while True:
+    cell = next(g)
+    cell_value = generate_cell(cell)
+
+    if cell_value > target_value:
+        print(cell_value)
+        break
+
+    grid[cell] = cell_value
