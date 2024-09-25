@@ -9,6 +9,12 @@ Skipped problems
 - 2016 23 (part 2)
 - 2016 24
 - 2017 18 (part 2)
+- 2017 20
+- 2017 21
+- 2017 22
+- 2017 23
+- 2017 24
+- 2017 25
 
 Other problems to revisit
 - 2015 19 (part 2)
