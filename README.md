@@ -18,6 +18,7 @@ Skipped problems
 - 2018 4
 - 2018 10
 - 2018 11 (part 2)
+- 2018 12 (part 2)
 
 Other problems to revisit
 - 2015 19 (part 2)
