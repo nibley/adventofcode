@@ -9,7 +9,6 @@ Skipped problems
 - 2016 23 (part 2)
 - 2016 24
 - 2017 18 (part 2)
-- 2017 21
 - 2017 22
 - 2017 23
 - 2017 24
@@ -21,6 +20,7 @@ Skipped problems
 
 Favorite problems
 - 2018 13 (minecarts)
+- 2017 21 (expanding Conway, was elegant)
 
 Other problems to revisit
 - 2015 19 (part 2)
