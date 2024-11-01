@@ -1,25 +1,17 @@
-from functools import cache
-
-orbits = {}
+total = 0
+current_group = set()
 while True:
     try:
         line = input()
+
     except EOFError:
+        total += len(current_group)
         break
 
-    orbited, orbiter = line.split(')')
-    orbits[orbiter] = orbited
+    if line:
+        current_group.update(line)
+    else:
+        total += len(current_group)
+        current_group = set()
 
-@cache
-def total_orbits(orbiting_object):
-    if orbiting_object not in orbits:
-        return 0
-
-    orbited = orbits[orbiting_object]
-    return 1 + total_orbits(orbited)
-
-orbiting_objects = orbits.keys()
-print(
-    sum(
-        total_orbits(orbiting_object) 
-        for orbiting_object in orbiting_objects))
+print(total)
