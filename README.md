@@ -43,6 +43,7 @@ Skipped problems
 - 2020 21 (part 2)
 - 2020 22 (part 2)
 - 2020 23 (part 2)
+- 2020 24
 
 Favorite problems
 - 2018 13 (minecarts)
