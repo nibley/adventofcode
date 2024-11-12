@@ -2,7 +2,6 @@ from itertools import chain
 from math import inf
 
 seed_ranges = []
-# seed_ranges_raw = iter(map(int, input().split(': ')[1].split(' ')))
 seed_ranges_raw = iter(map(int, input().split(': ')[1].split()))
 while True:
     try:
@@ -12,7 +11,6 @@ while True:
     except StopIteration:
         break
 
-# seed_ranges.sort()
 input()
 
 almanac_maps = []
@@ -29,7 +27,6 @@ while True:
     except EOFError:
         break
     finally:
-        # map_ranges.sort()
         almanac_maps.append(map_ranges)
 
 def apply_almanac_map(input_values, almanac_map):
@@ -42,15 +39,12 @@ def apply_almanac_map(input_values, almanac_map):
         # try the check_range from last loop iteration
         if input_value in check_range:
             input_value += offset - check_range_start
-            # print('hit')
         else:
             for check_range, offset in almanac_map:
                 if input_value in check_range:
-                    print('  scan')
                     check_range_start = check_range.start
                     input_value += offset - check_range_start
                     break
-            # print('miss')
 
         yield input_value
 
@@ -58,13 +52,4 @@ seeds = chain(*seed_ranges)
 for almanac_map in almanac_maps:
     seeds = apply_almanac_map(seeds, almanac_map)
 
-# m = inf
-# for i, seed in enumerate(seeds):
-#     if not i % 1_000_000:
-#         print(i)
-
-#     if seed < m:
-#         m = seed
-
-# print(m)
 print(min(seeds))
