@@ -1,38 +1,29 @@
+from itertools import product as cartesian_product
+
 serial = int(input())
 
-grid = [ [0 for _ in range(300)] for _ in range(300) ]
-for y in range(1, 300 + 1):
-    for x in range(1, 300 + 1):
-        rack = x + 10
-        power = rack * y
-        power += serial
-        power *= rack
-        if power < 100:
-            power = 0
-        else:
-            power = power % 1000
-            power = power // 100
-        power -= 5
+grid = {
+    (x, y) :
+    ((x + 10) * (y * (x + 10) + serial) // 100) % 10 - 5
+    for x, y in cartesian_product(
+        range(1, 300 + 1),
+        repeat=2
+    )
+}
 
-        grid[y - 1][x - 1] = power
+SIDE_LENGTH = 3
 
-best_position = None
-best_score = 0
-for y in range(1, 300 + 1 - 2):
-    for x in range(1, 300 + 1 - 2):
-        score = 0
-        score += grid[y - 1][x - 1]
-        score += grid[y - 1][x]
-        score += grid[y - 1][x + 1]
-        score += grid[y][x - 1]
-        score += grid[y][x]
-        score += grid[y][x + 1]
-        score += grid[y + 1][x - 1]
-        score += grid[y + 1][x]
-        score += grid[y + 1][x + 1]
-    
-        if score > best_score:
-            best_position = (x, y)
-            best_score = score
+def get_positions(corner):
+    x, y = corner
+    for y_offset in range(SIDE_LENGTH):
+        for x_offset in range(SIDE_LENGTH):
+            yield (x + x_offset, y + y_offset)
 
-print(f'{best_position[0]},{best_position[1]}')
+best_position = max(
+    cartesian_product(
+        range(1, 300 + 1 - (SIDE_LENGTH - 1) ),
+        repeat=2
+    ),
+    key=lambda corner: sum(map(grid.get, get_positions(corner)))
+)
+print('{},{}'.format(*best_position))
