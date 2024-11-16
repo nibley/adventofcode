@@ -63,6 +63,7 @@ Skipped problems
 - 2022 22 (part 2)
 - 2023 8 (part 2)
 - 2023 10 (part 2)
+- 2023 12 (part 2)
 
 Favorite problems
 - 2018 13 (minecarts)
