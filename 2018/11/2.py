@@ -1,45 +1,59 @@
-import datetime
+from itertools import chain, product as cartesian_product
+from functools import cache
 
 serial = int(input())
 
-grid = [ [0 for _ in range(300)] for _ in range(300) ]
-for y in range(1, 300 + 1):
-    for x in range(1, 300 + 1):
-        rack = x + 10
-        power = rack * y
-        power += serial
-        power *= rack
-        if power < 100:
-            power = 0
-        else:
-            power = power % 1000
-            power = power // 100
-        power -= 5
+grid = {
+    (x, y) :
+    ((x + 10) * (y * (x + 10) + serial) // 100) % 10 - 5
+    for x, y in cartesian_product(
+        range(1, 300 + 1),
+        repeat=2
+    )
+}
 
-        grid[y - 1][x - 1] = power
+@cache
+def get_square_total(x, y, side_length):
+    if side_length == 1:
+        return grid[ (x, y) ]
 
+    return sum(
+        (
+            # square with one less side length
+            get_square_total(x, y, side_length - 1),
+            # extended right edge, not including bottom-right corner
+            sum(
+                grid[ (x + side_length - 1, y_extended) ]
+                for y_extended in range(y, y + side_length - 1)
+            ),
+            # extended bottom edge, including bottom-right corner
+            sum(
+                grid[ (x_extended, y + side_length - 1) ]
+                for x_extended in range(x, x + side_length)
+            )
+        )
+    )
+
+side_lengths = iter(range(1, 300 + 1))
+previous_best_total = 0
+previous_best_position = None
+best_total = 1
 best_position = None
-best_score = 0
+while best_total >= previous_best_total:
+    previous_best_total = best_total
+    previous_best_position = best_position
 
-# for square_size in range(1, 300 + 1):
-t = datetime.datetime.now()
-for square_size in range(1, 300 + 1)[::-1]:
-    print(square_size)
-    now = datetime.datetime.now()
-    print(now - t)
-    t = now
-    print()
+    side_length = next(side_lengths)
+    best_total, *best_position = max(
+        (
+            get_square_total(*corner, side_length),
+            *corner,
+            side_length
+        )
+        for corner in cartesian_product(
+            range(1, 300 - (side_length - 1) + 1),
+            repeat=2
+        )
+    )
 
-    for y in range(300 - square_size + 1):
-        for x in range(300 - square_size + 1):
-            # print('  ', x, y, square_size)
-            score = 0
-            for y_offset in range(square_size):
-                for x_offset in range(square_size):
-                    score += grid[y + y_offset][x + x_offset]
-        
-            if score > best_score:
-                best_position = (x + 1, y + 1, square_size)
-                best_score = score
-
-print(','.join(map(str, best_position)))
+print('{},{},{}'.format(*previous_best_position))
