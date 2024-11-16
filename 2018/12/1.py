@@ -1,19 +1,44 @@
-num_double_words = 0
-num_triple_words = 0
+from collections import defaultdict
+
+_, initial_state = input().split(': ')
+pots = defaultdict(
+    lambda: False,
+    {
+        i : char == '#'
+        for i, char in enumerate(initial_state)
+    }
+)
+input()
+
+rules = {}
 while True:
     try:
         line = input()
     except EOFError:
         break
 
-    letters = set(line)
-    for letter in letters:
-        if line.count(letter) == 2:
-            num_double_words += 1
-            break
-    for letter in letters:
-        if line.count(letter) == 3:
-            num_triple_words += 1
-            break
+    before, after = line.split(' => ')
+    before = tuple( char == '#' for char in before )
+    rules[before] = (after == '#')
 
-print(num_double_words * num_triple_words)
+def simulate_generation(pots):
+    pots_next = defaultdict(lambda: False)
+    for i in range(-2, len(pots) + 2):
+        neighborhood = tuple(
+            pots[i + step]
+            for step in range(-2, 2 + 1)
+        )
+        pots_next[i] = rules[neighborhood]
+
+    return pots_next
+
+for _ in range(20):
+    pots = simulate_generation(pots)
+
+print(
+    sum(
+        i
+        for i, pot in pots.items()
+        if pot
+    )
+)
