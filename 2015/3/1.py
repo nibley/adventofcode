@@ -1,17 +1,19 @@
-the_input = input()
+directions = input()
 
-visited = {}
 x = 0
 y = 0
+visited = set([ (x, y) ])
 
-for c in the_input:
-    visited[(x, y)] = True
+for direction in directions:
+    if direction == '<':
+        x -= 1
+    elif direction == '>':
+        x += 1
+    elif direction == 'v':
+        y -= 1
+    elif direction == '^':
+        y += 1
 
-    if c == '<': x -= 1
-    if c == '>': x += 1
-    if c == 'v': y -= 1
-    if c == '^': y += 1
-
-visited[(x, y)] = True
+    visited.add( (x, y) )
 
 print(len(visited))
