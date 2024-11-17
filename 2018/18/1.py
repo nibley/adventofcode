@@ -1,78 +1,66 @@
-grid = []
+from collections import defaultdict, Counter
+
+grid = defaultdict(lambda: None) # None for open acres
+y = 0
 while True:
     try:
         line = input()
     except EOFError:
         break
 
-    row = list(line)
-    grid.append(row)
+    for x, char in enumerate(line):
+        if char != '.':
+            grid[ (x, y) ] = char
 
-height = len(grid)
-width = len(grid[0])
+    y += 1
+
+height = y
+width = len(line)
 
 def get_neighbors(x, y):
-    neighbors = []
+    forest_total = 0
+    lumberyard_total = 0
 
-    if x > 0: # right
-        neighbors.append(grid[y][x - 1])
-
-        if y > 0: # right and down
-            neighbors.append(grid[y - 1][x - 1])
-        if y < height - 1: # right and up
-            neighbors.append(grid[y + 1][x - 1])
-    
-    if x < width - 1: # left
-        neighbors.append(grid[y][x + 1])
-
-        if y > 0: # left and down
-            neighbors.append(grid[y - 1][x + 1])
-        if y < height - 1: # left and up
-            neighbors.append(grid[y + 1][x + 1])
-
-    if y > 0: # down
-        neighbors.append(grid[y - 1][x])
-
-    if y < height - 1: # up
-        neighbors.append(grid[y + 1][x])
-
-    return neighbors
-
-def visualize():
-    for row in grid:
-        print(''.join(row))
-    print()
-
-for _ in range(10):
-    visualize()
-
-    next_grid = [ [None for _ in range(width)] for _ in range(height) ]
-    for y in range(height):
-        for x in range(width):
-            cell = grid[y][x]
-            neighbors = get_neighbors(x, y)
-            if cell == '.':
-                cell = '|' if neighbors.count('|') > 2 else '.'
-            elif cell == '|':
-                cell = '#' if neighbors.count('#') > 2 else '|'
-            elif cell == '#':
-                cell = '#' if neighbors.count('#') > 0 \
-                    and neighbors.count('|') > 0 else '.'
-            
-            next_grid[y][x] = cell
-
-    grid = next_grid
-
-visualize()
-
-forest_total = 0
-lumberyard_total = 0
-
-for row in grid:
-    for cell in row:
+    for x_offset, y_offset in (
+        (-1, -1), (0, -1), (1, -1), (-1, 0),
+        (1, 0), (-1, 1), (0, 1), (1, 1)
+    ):
+        cell = grid[ (x + x_offset, y + y_offset) ]
         if cell == '|':
             forest_total += 1
         elif cell == '#':
             lumberyard_total += 1
 
-print(forest_total * lumberyard_total)
+    return (forest_total, lumberyard_total)
+
+for _ in range(10):
+    next_grid = defaultdict(lambda: None)
+    for y in range(height):
+        for x in range(width):
+            cell = grid[ (x, y) ]
+            forest_total, lumberyard_total = get_neighbors(x, y)
+
+            if cell is None:
+                cell = '|' if forest_total > 2 else None
+            elif cell == '|':
+                cell = '#' if lumberyard_total > 2 else '|'
+            elif cell == '#':
+                cell = '#' if lumberyard_total and forest_total else None
+
+            next_grid[ (x, y) ] = cell
+
+    grid = next_grid
+
+def visualize():
+    for y in range(height):
+        print(
+            ''.join(
+                str(grid[ (x, y) ]) if grid[ (x, y) ] is not None else '.'
+                for x in range(width)
+            )
+        )
+    print()
+# visualize()
+
+acre_totals = Counter(grid.values())
+print(acre_totals['|'] * acre_totals['#'])
