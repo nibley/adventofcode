@@ -1,43 +1,37 @@
-grid = []
-for i in range(1000):
-    grid.append([False] * 1000)
+from itertools import product as cartesian_product
 
-def process(x, y, command):
-    if command == 'on':
-        grid[x][y] = True
-    elif command == 'off':
-        grid[x][y] = False
-    else:
-        grid[x][y] = not grid[x][y]
+grid = dict.fromkeys(
+    cartesian_product(range(1000), repeat=2),
+    False
+)
 
-debug_line = 1
-
+commands = []
 while True:
     try:
         line = input()
     except EOFError:
         break
-    
-    pieces = line.split(' through ')
-    x_start, y_start = tuple(int(n) for n in pieces[0].split(' ')[-1].split(','))
-    x_end, y_end = tuple(int(n) for n in pieces[1].split(','))
 
-    if line.startswith('toggle'):
-        command = 'toggle'
-    elif line.startswith('turn off'):
-        command = 'off'
-    else:
-        command = 'on'
+    *_, start, _, end = line.split()
+    start, end = (
+        map(int, position.split(','))
+        for position in (start, end)
+    )
 
-    print(f'{debug_line}\t{line}')
-    debug_line += 1
+    command = (
+        None if line.startswith('toggle')
+        else line.startswith('turn on')
+    )
+    commands.append( (command, start, end) )
 
-    for y, row in enumerate(grid):
-        if y_start > y or y_end < y:
-            continue
-        for x, light in enumerate(row):
-            if x_start > x or x_end < x:
-                continue
-            process(x, y, command)
+for command, (start_x, start_y), (end_x, end_y) in commands:
+    for position in cartesian_product(
+        range(start_x, end_x + 1),
+        range(start_y, end_y + 1)
+    ):
+        if command is None:
+            grid[position] ^= True
+        else:
+            grid[position] = command
 
-print(sum(len([light for light in row if light]) for row in grid))
+print(sum(grid.values()))
