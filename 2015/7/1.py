@@ -1,57 +1,52 @@
 from functools import cache
 
-values = {}
-
-@cache
-def evaluate(wire):
-    try:
-        const_value = int(wire)
-        return const_value
-    except ValueError:
-        wire_in = values[wire]
-    
-    operator = wire_in[0]
-    if operator == 'CONST':
-        arg = wire_in[1]
-        value = evaluate(arg)
-    elif operator == 'NOT':
-        arg = wire_in[1]
-        value = ~ evaluate(arg)
-    elif operator == 'AND':
-        arg_left = wire_in[1]
-        arg_right = wire_in[2]
-        value = evaluate(arg_left) & evaluate(arg_right)
-    elif operator == 'OR':
-        arg_left = wire_in[1]
-        arg_right = wire_in[2]
-        value = evaluate(arg_left) | evaluate(arg_right)
-    elif operator == 'LSHIFT':
-        arg_left = wire_in[1]
-        arg_right = wire_in[2]
-        value = evaluate(arg_left) << evaluate(arg_right)
-    elif operator == 'RSHIFT':
-        arg_left = wire_in[1]
-        arg_right = wire_in[2]
-        value = evaluate(arg_left) >> evaluate(arg_right)
-    
-    return value
-
+wires = {}
 while True:
     try:
         line = input()
     except EOFError:
         break
-    
+
     wire_in, wire_out = line.split(' -> ')
-    pieces_in = wire_in.split(' ')
-    
-    if len(pieces_in) == 1:
-        value_in = ('CONST', pieces_in[0])
-    elif len(pieces_in) == 2:
-        value_in = ('NOT', pieces_in[1])
+    wire_in = wire_in.split()
+
+    if len(wire_in) == 1: # constant
+        value_in = ('CONST', *wire_in)
+    elif len(wire_in) == 2: # NOT operator ('NOT', arg)
+        value_in = wire_in
+    else: # other operator
+        left, operator, right = wire_in
+        value_in = (operator, left, right)
+
+    # (operator, [args ...])
+    wires[wire_out] = value_in
+
+@cache
+def evaluate(wire):
+    try:
+        return int(wire)
+    except ValueError:
+        wire_in = wires[wire]
+
+    operator, *arguments = wire_in
+    first_argument, *rest = map(evaluate, arguments)
+
+    if operator == 'CONST':
+        return first_argument
+    elif operator == 'NOT':
+        return ~ first_argument
     else:
-        value_in = (pieces_in[1], pieces_in[0], pieces_in[2])
-    
-    values[wire_out] = value_in
+        second_argument, *_ = rest
+
+        if operator == 'AND':
+            return first_argument & second_argument
+        elif operator == 'OR':
+            return first_argument | second_argument
+        elif operator == 'LSHIFT':
+            return first_argument << second_argument
+        elif operator == 'RSHIFT':
+            return first_argument >> second_argument
+
+    assert False
 
 print(evaluate('a'))
