@@ -1,6 +1,6 @@
-the_input = input()
+instructions = input()
 floor = 0
-for c in the_input:
-    if c == '(': floor += 1
-    elif c == ')': floor -= 1
+for instruction in instructions:
+    floor += 1 if instruction == '(' else -1
+
 print(floor)

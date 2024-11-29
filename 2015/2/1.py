@@ -1,9 +1,13 @@
 def paper_for_box(box):
     width, height, length = box
-    basic_paper = 2 * (width * height + width * length + height * length)
-    extra_paper = width * height
 
-    return basic_paper + extra_paper
+    return (
+        3 * width * height
+        + 2 * (
+            width * length
+            + height * length
+        )
+    )
 
 total_paper = 0
 while True:
@@ -12,7 +16,7 @@ while True:
     except EOFError:
         break
 
-    dimensions = sorted([int(n) for n in line.split('x')])
-    total_paper += paper_for_box(dimensions)
+    box = sorted( int(n) for n in line.split('x') )
+    total_paper += paper_for_box(box)
 
 print(total_paper)

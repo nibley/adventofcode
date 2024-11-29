@@ -1,53 +1,49 @@
-import re
+from re import finditer
 
 def increment_password(password):
-    reversed_password = reversed(password)
     result = ''
+
     # true initially triggers the first low-digit increment
     carry = True
-    for c in reversed_password:
+    for c in reversed(password):
         if carry and c == 'z':
             result = 'a' + result
             carry = True
         else:
-            result = (increment_character(c) if carry else c) + result
+            result = (chr(ord(c) + 1) if carry else c) + result
             carry = False
 
     return result
 
-def increment_character(character):
-    """ don't pass 'z' """
-    return chr(ord(character) + 1)
-
 def is_valid_password(password):
-    for forbidden in 'iol':
-        if forbidden in password:
+    for c in password:
+        if c in 'iol':
             return False
 
-    doubles = list(re.finditer(r'([a-z])\1\1?', password))
-    if len(doubles) < 2:
+    doubles = list(finditer(r'([a-z])\1\1?', password))
+    if not len(doubles) >= 2:
         return False
 
-    for i, c in enumerate(password[:-2]):
-        first_char_code = ord(password[i])
-        second_char_code = ord(password[i + 1])
-        third_char_code = ord(password[i + 2])
+    for window in zip(
+        password[    : -2 ],
+        password[  1 : -1 ],
+        password[  2 :    ]
+    ):
+        first_ascii, second_ascii, third_ascii = map(ord, window)
         if (
-            second_char_code - first_char_code == 1
-            and third_char_code - second_char_code == 1
+            third_ascii - second_ascii == 1
+            and second_ascii - first_ascii == 1
         ):
             return True
 
     return False
 
 password = input()
-found_one_password = False
-while True:
-    if is_valid_password(password):
-        if found_one_password:
-            print(password)
-            break
-        else:
-            found_one_password = True
-
+while not is_valid_password(password):
     password = increment_password(password)
+
+password = increment_password(password)
+while not is_valid_password(password):
+    password = increment_password(password)
+
+print(password)

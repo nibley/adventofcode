@@ -1,21 +1,16 @@
 from json import loads
 
-raw_json = input()
-parsed_json = loads(raw_json)
-
 def crawl_json(json):
-    the_type = type(json)
-    global total
-    if the_type is int:
-        total += json
-    elif the_type is list:
-        for item in json:
-            crawl_json(item)
-    elif the_type is dict:
-        for item in json.values():
-            crawl_json(item)
+    json_type = type(json)
 
-total = 0
-crawl_json(parsed_json)
+    if json_type is int:
+        return json
+    elif json_type is str:
+        return 0
+    elif json_type is list:
+        return sum(map(crawl_json, json))
+    elif json_type is dict:
+        return sum(map(crawl_json, json.values()))
 
-print(total)
+input_json = loads(input())
+print(crawl_json(input_json))

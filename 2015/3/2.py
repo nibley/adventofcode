@@ -1,34 +1,35 @@
-from itertools import islice
+directions = input()
+assert not len(directions) % 2
 
-the_input = input()
-
-visited = {}
 x_human = 0
 y_human = 0
 x_robot = 0
 y_robot = 0
+visited = set([ (x_human, y_human) ])
 
-def chunk(arr_range, arr_size):
-    arr_range = iter(arr_range)
-    return iter(lambda: tuple(islice(arr_range, arr_size)), ())
+for direction_human, direction_robot in zip(
+    directions[ : -1 : 2],
+    directions[ 1 : : 2]
+):
+    if direction_human == '<':
+        x_human -= 1
+    elif direction_human == '>':
+        x_human += 1
+    elif direction_human == 'v':
+        y_human -= 1
+    elif direction_human == '^':
+        y_human += 1
 
-for instr in chunk(the_input, 2):
-    visited[(x_human, y_human)] = True
-    visited[(x_robot, y_robot)] = True
+    if direction_robot == '<':
+        x_robot -= 1
+    elif direction_robot == '>':
+        x_robot += 1
+    elif direction_robot == 'v':
+        y_robot -= 1
+    elif direction_robot == '^':
+        y_robot += 1
 
-    instr_human, instr_robot = instr
-
-    if instr_human == '<': x_human -= 1
-    if instr_human == '>': x_human += 1
-    if instr_human == 'v': y_human -= 1
-    if instr_human == '^': y_human += 1
-
-    if instr_robot == '<': x_robot -= 1
-    if instr_robot == '>': x_robot += 1
-    if instr_robot == 'v': y_robot -= 1
-    if instr_robot == '^': y_robot += 1
-
-visited[(x_human, y_human)] = True
-visited[(x_robot, y_robot)] = True
+    visited.add( (x_human, y_human) )
+    visited.add( (x_robot, y_robot) )
 
 print(len(visited))

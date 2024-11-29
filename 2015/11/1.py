@@ -1,42 +1,46 @@
-import re
+from re import finditer
 
 def increment_password(password):
-    reversed_password = reversed(password)
     result = ''
+
     # true initially triggers the first low-digit increment
     carry = True
-    for c in reversed_password:
+    for c in reversed(password):
         if carry and c == 'z':
             result = 'a' + result
             carry = True
         else:
-            result = (increment_character(c) if carry else c) + result
-            carry = False            
+            result = (chr(ord(c) + 1) if carry else c) + result
+            carry = False
+
     return result
 
-def increment_character(character):
-    """ don't pass 'z' """
-    return chr(ord(character) + 1)
-
 def is_valid_password(password):
-    for forbidden in 'iol':
-        if forbidden in password:
+    for c in password:
+        if c in 'iol':
             return False
-    
-    doubles = list(re.finditer(r'([a-z])\1\1?', password))
-    if len(doubles) <= 1:
+
+    doubles = list(finditer(r'([a-z])\1\1?', password))
+    if not len(doubles) >= 2:
         return False
 
-    for i, c in enumerate(password[:-2]):
-        window = password[i:i+3]
-        if ord(window[2]) - ord(window[1]) == 1:
-            if ord(window[1]) - ord(window[0]) == 1:
-                return True
-    
+    for window in zip(
+        password[    : -2 ],
+        password[  1 : -1 ],
+        password[  2 :    ]
+    ):
+        first_ascii, second_ascii, third_ascii = map(ord, window)
+        if (
+            third_ascii - second_ascii == 1
+            and second_ascii - first_ascii == 1
+        ):
+            return True
+
     return False
 
 password = input()
-while not is_valid_password(password):
-    password = increment_password(password)
+for _ in range(2):
+    while not is_valid_password(password):
+        password = increment_password(password)
 
 print(password)

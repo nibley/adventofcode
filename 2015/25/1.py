@@ -1,21 +1,22 @@
-prompt = input()
-right_side = prompt.split('  ')[1].split('Enter the code at ')[1].split(', ')
-prompt_row = int(right_side[0].split(' ')[1])
-prompt_column = int(right_side[1].split(' ')[1].replace('.', ''))
+*_, prompt_row, _, prompt_column = input().split()
+prompt_row, prompt_column = (
+    int(coord[ : -1 ])
+    for coord in (prompt_row, prompt_column)
+)
 
 nth_diagonal = prompt_row + prompt_column - 1
-triangle_numbers = {1: 1}
+last_triangle_number = 1
 for n in range(2, nth_diagonal):
-    triangle_numbers[n] = n + triangle_numbers[n - 1]
+    last_triangle_number = n + last_triangle_number
 
-codes_used_through_previous_diagonal = triangle_numbers[nth_diagonal - 1]
+codes_used_through_previous_diagonal = last_triangle_number
 nth_code = codes_used_through_previous_diagonal + prompt_column
 
 multiplier = 252533
 divisor = 33554393
-codes = {1: 20151125}
-for n in range(2, nth_code + 1):
-    code = (multiplier * codes[n - 1]) % divisor
-    codes[n] = code
 
-print(codes[nth_code])
+last_code = 20151125
+for _ in range(nth_code - 1):
+    last_code = (last_code * multiplier) % divisor
+
+print(last_code)

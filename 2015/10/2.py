@@ -1,24 +1,11 @@
+from itertools import groupby
+
 current = input()
 
-def look_and_say(sequence):
-    groups = []
-    current_group = sequence[0]
-    for current_number in sequence[1:]:
-        if current_number == current_group[-1]:
-            current_group += current_number
-        else:
-            groups.append(current_group)
-            current_group = current_number
-    groups.append(current_group)
-
-    result = ''
-    for group in groups:
-        result += f'{len(group)}{group[0]}'
-    
-    return result
-
-
-for i in range(50):
-    current = look_and_say(current)
+for _ in range(50):
+    current = ''.join(
+        f'{sum(1 for _ in group)}{key}'
+        for key, group in groupby(current)
+    )
 
 print(len(current))

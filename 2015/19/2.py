@@ -1,23 +1,18 @@
 import random
 
-molecule = None
 electron_direct_products = set()
 replacements = []
-while True:
-    try:
-        line = input()
-    except EOFError:
-        break
-
-    if not line:
-        molecule = input()
-        continue
-
+line = input()
+while line:
     end, start = line.split(' => ')
     if end == 'e':
         electron_direct_products.add(start)
     else:
         replacements.append( (start, end) )
+
+    line = input()
+
+molecule = input()
 
 def stochastic_approach(start_molecule):
     steps = 0
