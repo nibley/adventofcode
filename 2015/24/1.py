@@ -1,6 +1,5 @@
 from itertools import combinations
-from math import inf
-from functools import reduce
+from math import prod
 
 weights = []
 while True:
@@ -8,25 +7,25 @@ while True:
         line = input()
     except EOFError:
         break
-    
+
     weights.append(int(line))
 
-num_weights = len(weights)
-total_weight = sum(weights)
-compartment_weight = total_weight // 3
-
-valid_passenger_compartments = []
-for sublist_length in range(1, num_weights + 1):
-    given_length_sublists = combinations(weights, sublist_length)
-    valid_sublists = [sublist for sublist in given_length_sublists if sum(sublist) == compartment_weight]
+compartment_weight = sum(weights) // 3
+valid_compartments = None
+for sublist_length in range(1, len(weights) + 1):
+    valid_sublists = tuple(
+        sublist
+        for sublist in combinations(weights, sublist_length)
+        if sum(sublist) == compartment_weight
+    )
     if valid_sublists:
-        valid_passenger_compartments = valid_sublists
+        valid_compartments = valid_sublists
         break
 
-best_quantum_value = inf
-for valid_passenger_compartment in valid_passenger_compartments:
-    quantum_value = reduce(lambda x, y: x * y, valid_passenger_compartment, 1)
-    if quantum_value < best_quantum_value:
-        best_quantum_value = quantum_value
-
-print(best_quantum_value)
+assert valid_compartments is not None
+print(
+    min(
+        prod(valid_compartment)
+        for valid_compartment in valid_compartments
+    )
+)
