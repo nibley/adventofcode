@@ -44,20 +44,7 @@ store = {
     'Defense +3': {'cost': 80,  'damage': 0, 'armor': 3},
 }
 
-def populate_inventories():
-    weapon_inventories = combinations(weapon_names, 1)
-    armor_inventories = [ *combinations(armor_names, 1), () ]
-    ring_inventories = [
-        *combinations(ring_names, 1),
-        *combinations(ring_names, 2),
-        () ]
-
-    for weapon_inventory in weapon_inventories:
-        for armor_inventory in armor_inventories:
-            for ring_inventory in ring_inventories:
-                inventories.append(weapon_inventory + armor_inventory + ring_inventory)
-
-def fight(inventory):    
+def fight(inventory):
     fight_hp = player_hp
     fight_damage = sum([store[item]['damage'] for item in inventory])
     fight_armor = sum([store[item]['armor'] for item in inventory])
@@ -69,33 +56,38 @@ def fight(inventory):
 
     while fight_hp > 0 and fight_boss_hp > 0:
         fight_boss_hp -= player_attack
-        
         if fight_boss_hp <= 0:
             break
-        
+
         fight_hp -= boss_attack
 
     return fight_hp > 0
 
-def cost(inventory):
-    return sum([store[item]['cost'] for item in inventory])
-
 player_hp = 100
 
-boss_hp = int(input().split(' ')[-1])
-boss_damage = int(input().split(' ')[-1])
-boss_armor = int(input().split(' ')[-1])
+get_boss_stat = lambda: int(input().split()[-1])
+boss_hp = get_boss_stat()
+boss_damage = get_boss_stat()
+boss_armor = get_boss_stat()
 
-inventories = []
-win_costs = {}
-populate_inventories()
+inventories = tuple(
+    weapon_inventory + armor_inventory + ring_inventory
+    for weapon_inventory in combinations(weapon_names, 1)
+    for armor_inventory in (
+        *combinations(armor_names, 1),
+        ()
+    )
+    for ring_inventory in (
+        *combinations(ring_names, 1),
+        *combinations(ring_names, 2),
+        ()
+    )
+)
 
-for inventory in inventories:
-    if fight(inventory):
-        win_costs[inventory] = cost(inventory)
-
-best_inventory, best_cost = sorted(
-    win_costs.items(),
-    key=lambda item: item[1])[0]
-print(best_inventory)
-print(best_cost)
+print(
+    min(
+        sum( store[item]['cost'] for item in inventory )
+        for inventory in inventories
+        if fight(inventory)
+    )
+)
