@@ -1,67 +1,57 @@
-from math import floor
-
-def simulate_race(seconds):
-    for second in range(seconds):
-        for reindeer_name in reindeer_names:
-            flight_speed = flight_speeds[reindeer_name]
-            flight_time = flight_times[reindeer_name]
-            rest_time = rest_times[reindeer_name]
-
-            remaining_rest = remaining_rests[reindeer_name]
-            remaining_flight = remaining_flights[reindeer_name]
-
-            if remaining_flight == -1: # resting
-                if remaining_rest == 0: # exit rest
-                    remaining_flights[reindeer_name] = flight_time - 1 # fly one second now
-                    distances[reindeer_name] += flight_speed
-                else:
-                    remaining_rests[reindeer_name] -= 1
-            else: # flying
-                if remaining_flight == 0: # enter rest
-                    remaining_rests[reindeer_name] = rest_time - 1 # rest one second now
-                    remaining_flights[reindeer_name] = -1 # mark resting
-                else:
-                    remaining_flights[reindeer_name] -= 1
-                    distances[reindeer_name] += flight_speed
-
-        max_distance = sorted(distances.items(), key=lambda item: item[1])[-1][1]
-        for reindeer_name in reindeer_names:
-            if distances[reindeer_name] == max_distance:
-                scores[reindeer_name] += 1
-        
-    for item in scores.items():
-        print(item)
-    return sorted(scores.items(), key=lambda item: item[1])[-1]
-
-flight_speeds = {}
-flight_times = {}
-rest_times = {}
-
-remaining_flights = {}
-remaining_rests = {}
-
-distances = {}
-scores = {}
-
+reindeer = []
 while True:
     try:
         line = input()
     except EOFError:
         break
-    
-    left_side, right_side = line.split(' seconds, but then must rest for ')
-    reindeer_name, flight_info = left_side.split(' can fly ')
-    flight_speed, _, _, flight_time = flight_info.split(' ')
-    rest_time = right_side.split(' ')[0]
-    flight_speeds[reindeer_name] = int(flight_speed)
-    flight_times[reindeer_name] = int(flight_time)
-    rest_times[reindeer_name] = int(rest_time)
 
-reindeer_names = sorted(flight_speeds.keys())
-for reindeer_name in reindeer_names:
-    remaining_rests[reindeer_name] = 0
-    remaining_flights[reindeer_name] = flight_times[reindeer_name]
-    distances[reindeer_name] = 0
-    scores[reindeer_name] = 0
+    (
+        _, _, _,
+        flight_speed, _, _,
+        flight_time, _, _, _, _, _, _,
+        rest_time, _
+    ) = line.split()
 
-print(*simulate_race(2503))
+    reindeer.append(
+        tuple( int(stat) for stat in (flight_speed, flight_time, rest_time) )
+    )
+
+all_zeros = [ 0 for _ in reindeer ]
+distances = all_zeros[ : ]
+scores = all_zeros[ : ]
+remaining_rests = all_zeros[ : ]
+remaining_flights = [ flight_time for _, flight_time, _ in reindeer ]
+
+RACE_LENGTH = 2503
+for _ in range(RACE_LENGTH):
+    for i, (remaining_flight, remaining_rest, current_reindeer) in enumerate(
+        zip(remaining_flights, remaining_rests, reindeer)
+    ):
+        flight_speed, flight_time, rest_time = current_reindeer
+
+        if remaining_flight == -1:
+            # resting
+            if remaining_rest == 0:
+                # exit rest
+                remaining_flights[i] = flight_time - 1 # fly one second now
+                distances[i] += flight_speed
+            else:
+                # continue resting
+                remaining_rests[i] -= 1
+        else:
+            # flying
+            if remaining_flight == 0:
+                # enter rest
+                remaining_rests[i] = rest_time - 1 # rest one second now
+                remaining_flights[i] = -1 # mark resting
+            else:
+                # continue flying
+                remaining_flights[i] -= 1
+                distances[i] += flight_speed
+
+    max_distance = max(distances)
+    for i, distance in enumerate(distances):
+        if distance == max_distance:
+            scores[i] += 1
+
+print(max(scores))
