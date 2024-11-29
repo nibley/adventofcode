@@ -73,12 +73,23 @@ Favorite problems
 - 2018 13 (minecarts)
 - 2017 21 (expanding Conway, was elegant)
 - 2022 21 (used eval trick to solve an equation)
-- 2018 18 (cool Conway output -- try animating successive generations -- also try for 2015 18)
+- 2018 18 (cool Conway output)
 
 Other problems to revisit
 - 2015 19 (part 2)
-Seems to have an unusually variable input generation. My input cannot be solved by a simple approach almost like part 1's, but many people's, including a friend's and those of several bloggers, can. I landed on a stochastic approach but a pathfinding approach would be fun to revisit (as long as it had ways to pare down the combinatorial explosion that I experienced with a naive approach even when starting with the medicine and working towards shorter and shorter molecules).
+Seems to have an unusually variable input generation.
+My input cannot be solved by a simple approach almost like part 1's,
+but many people's, including a friend's and those of several bloggers, can.
+I landed on a stochastic approach but a pathfinding approach would be fun to
+revisit (as long as it had ways to pare down the combinatorial explosion that
+I experienced with a naive approach even when starting with the medicine and
+working towards shorter and shorter molecules).
+- 2015 20 (find more efficient approach)
+
+Text outputs to animate
+- 2015 18
+- 2018 18
+- 2017 21?
 
 Other
-- 2015 20 (find more efficient approach)
 - replace occurrences of 'indeces' with 'indices'
