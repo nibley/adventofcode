@@ -71,7 +71,7 @@ Favorite problems
 - 2018 13 (minecarts)
 - 2017 21 (expanding Conway, was elegant)
 - 2022 21 (used eval trick to solve an equation)
-- 2018 18 (cool Conway output -- try animating successive generations)
+- 2018 18 (cool Conway output -- try animating successive generations -- also try for 2015 18)
 
 Other problems to revisit
 - 2015 19 (part 2)

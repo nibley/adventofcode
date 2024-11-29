@@ -1,80 +1,45 @@
-grid_length = 100
-grid = []
-for _ in range(grid_length):
-    grid.append([False] * grid_length)
-
-def num_on(grid):
-    return sum(len([column for column in row if column]) for row in grid)
-
-def step(grid):
-    new_grid = []
-    for i in range(grid_length):
-        new_row = []
-        for j in range(grid_length):
-            new_row.append(step_cell(i, j))
-        new_grid.append(new_row)
-    
-    return new_grid
-
-def step_cell(i, j):
-    neighbors = cell_neighbors(i, j)
-    num_neighbors_on = len([neighbor for neighbor in neighbors if neighbor])
-    if grid[i][j]:
-        return num_neighbors_on in [2, 3]
+def step_cell(position):
+    neighbors_on = sum(cell_neighbors(*position))
+    if grid[position]:
+        return neighbors_on in {2, 3}
     else:
-        return num_neighbors_on == 3
+        return neighbors_on == 3
 
-def cell_neighbors(i, j):
-    neighbors = []
-    is_edge = lambda i: i in [0, grid_length - 1]
-    offset = lambda i: 1 if i == 0 else -1
-    if is_edge(i) and is_edge(j):
-        neighbors.append(grid[i + offset(i)][j + offset(j)])
-        neighbors.append(grid[i][j + offset(j)])
-        neighbors.append(grid[i + offset(i)][j])
-    elif is_edge(i) or is_edge(j):
-        if is_edge(i):
-            neighbors.append(grid[i + offset(i)][j - 1])
-            neighbors.append(grid[i + offset(i)][j])
-            neighbors.append(grid[i + offset(i)][j + 1])
-            neighbors.append(grid[i            ][j - 1])
-            neighbors.append(grid[i            ][j + 1])
-        else:
-            neighbors.append(grid[i - 1][j + offset(j)])
-            neighbors.append(grid[i    ][j + offset(j)])
-            neighbors.append(grid[i + 1][j + offset(j)])
-            neighbors.append(grid[i - 1][j])
-            neighbors.append(grid[i + 1][j])
-    else:
-        neighbors.append(grid[i + 1][j + 1])
-        neighbors.append(grid[i - 1][j - 1])
-        neighbors.append(grid[i + 1][j - 1])
-        neighbors.append(grid[i - 1][j + 1])
-        neighbors.append(grid[i    ][j - 1])
-        neighbors.append(grid[i    ][j + 1])
-        neighbors.append(grid[i + 1][j])
-        neighbors.append(grid[i - 1][j])
+def cell_neighbors(x, y):
+    for x_offset, y_offset in (
+        (-1, -1), (0, -1), (1, -1),
+        (-1, 0), (1, 0),
+        (-1, 1), (0, 1), (1, 1)
+    ):
+        yield grid.get((x + x_offset, y + y_offset), False)
 
-    return neighbors
-
-row = 0
+SIDE_LENGTH = 100
+grid = {}
+y = 0
 while True:
     try:
         line = input()
     except EOFError:
         break
-    
-    for column, char in enumerate(line):
-        if char == '#':
-            grid[row][column] = True    
-    row += 1
 
-num_steps = 100
-for _ in range(num_steps):
-    grid = step(grid)
+    for x, cell in enumerate(line):
+        position = (x, y)
+        grid[ (x, y) ] = cell == '#'
 
-    # for row in grid:
-    #     print(''.join(['#' if column else '.' for column in row]))
-    # print('\n')
+    y += 1
 
-print(num_on(grid))
+for _ in range(100):
+    grid = {
+        position : step_cell(position)
+        for position in grid
+    }
+
+def visualize():
+    for y in range(SIDE_LENGTH):
+        for x in range(SIDE_LENGTH):
+            print('#' if grid[ (x, y) ] else '.', end='')
+        print()
+    print()
+# visualize()
+
+print(sum(grid.values()))
