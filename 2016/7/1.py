@@ -1,50 +1,49 @@
-def is_valid(address):
-    sections, sections_bracketed = address
-
-    for section_bracketed in sections_bracketed:
-        if has_abba(section_bracketed):
-            return False
-
-    for section in sections:
-        if has_abba(section):
-            return True
-
-def has_abba(section):
-    for i, char_1 in enumerate(section[:-3]):
-        char_2 = section[i + 1]
-        char_3 = section[i + 2]
-        char_4 = section[i + 3]
-
-        if char_1 == char_2:
-            continue
-        
-        if char_1 == char_4 and char_2 == char_3:
-            return True
-    
-    return False
-
 addresses = []
 while True:
     try:
         line = input()
     except EOFError:
         break
-    
+
     sections = []
     sections_bracketed = []
     for piece in line.split('['):
         subpieces = piece.split(']')
+
         if len(subpieces) == 1:
-            sections.append(subpieces[0])
+            normal, *_ = subpieces
+            sections.append(normal)
         else:
-            sections.append(subpieces[1])
-            sections_bracketed.append(subpieces[0])
-    
-    addresses.append((sections, sections_bracketed))
+            bracketed, normal = subpieces
+            sections_bracketed.append(bracketed)
+            sections.append(normal)
 
-total = 0
-for address in addresses:
-    if is_valid(address):
-        total += 1
+    addresses.append( (sections, sections_bracketed) )
 
-print(total)
+def has_abba(section):
+    return any(
+        first_letter != second_letter
+        and (first_letter, second_letter) == (fourth_letter, third_letter)
+        for (
+            first_letter, second_letter, third_letter, fourth_letter
+        ) in zip(
+            section[    : -3 ],
+            section[  1 : -2 ],
+            section[  2 : -1 ],
+            section[  3 :    ]
+        )
+    )
+
+def is_valid(address):
+    sections, sections_bracketed = address
+    return (
+        not any(map(has_abba, sections_bracketed))
+        and any(map(has_abba, sections))
+    )
+
+print(
+    sum(
+        is_valid(address)
+        for address in addresses
+    )
+)
