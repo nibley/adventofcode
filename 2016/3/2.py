@@ -1,22 +1,20 @@
-def parse_line(line):
-    pieces = line.split(' ')
-    return [int(piece) for piece in pieces if piece]
-
 triangles = []
 while True:
     try:
-        line1 = input()
-        line2 = input()
-        line3 = input()
+        lines = tuple( input() for _ in range(3) )
     except EOFError:
         break
-    
-    rows = zip(parse_line(line1), parse_line(line2), parse_line(line3))
-    for row in rows:
-        triangle = tuple(sorted(row))
-        triangles.append(triangle)
 
-def is_valid(triangle):
-    return triangle[0] + triangle[1] > triangle[2]
+    triangles.extend(
+        sorted(triangle)
+        for triangle in zip(
+            *( map(int, line.split()) for line in lines )
+        )
+    )
 
-print(len(list(filter(is_valid, triangles))))
+print(
+    sum(
+        first_side + second_side > third_side
+        for first_side, second_side, third_side in triangles
+    )
+)

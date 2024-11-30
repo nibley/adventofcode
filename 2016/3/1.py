@@ -1,15 +1,16 @@
 triangles = []
 while True:
     try:
-        line = input()
+        lines = tuple( input() for _ in range(3) )
     except EOFError:
         break
-    
-    pieces = line.split(' ')
-    triangle = tuple(sorted(int(piece) for piece in pieces if piece))
-    triangles.append(triangle)
 
-def is_valid(triangle):
-    return triangle[0] + triangle[1] > triangle[2]
+    for line in lines:
+        triangles.append(sorted(map(int, line.split())))
 
-print(len(list(filter(is_valid, triangles))))
+print(
+    sum(
+        first_side + second_side > third_side
+        for first_side, second_side, third_side in triangles
+    )
+)
