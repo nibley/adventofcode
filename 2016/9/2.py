@@ -1,24 +1,20 @@
 import re
 
 compressed = input()
-pattern = r'\((\d+x\d+)\)'
+PATTERN = r'\((\d+)x(\d+)\)'
 
-def uncompressed_length(compressed):
-    match = re.search(pattern, compressed)
-
+def decompressed_length(compressed):
+    match = re.search(PATTERN, compressed)
     if match is None:
         return len(compressed)
 
-    result = 0
-    length, repetitions = map(int, match.group(1).split('x'))
+    length, repetitions = map(int, (match.group(1), match.group(2)))
     start, end = match.start(), match.end()
-    result += len(compressed[:start])
-    
-    data_region = compressed[end:end + length]
-    result += uncompressed_length(data_region) * repetitions
 
-    result += uncompressed_length(compressed[end + length:])
+    return (
+        start
+        + decompressed_length(compressed[ end : end + length ]) * repetitions
+        + decompressed_length(compressed[ end + length : ])
+    )
 
-    return result
-
-print(uncompressed_length(compressed))
+print(decompressed_length(compressed))
