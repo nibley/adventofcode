@@ -1,46 +1,41 @@
-raw = input()
-pieces = raw.split(', ')
 instructions = []
-for piece in pieces:
-    left_or_right = piece[0]
-    distance = int(piece[1:])
-    instructions.append((left_or_right, distance))
+for instruction in input().split(', '):
+    instructions.append( (instruction[0], int(instruction[ 1 : ])) )
 
-directions = ['north', 'east', 'south', 'west']
-def turn(left_or_right):
-    offset = 1 if left_or_right == 'R' else -1
-    facing_index = directions.index(facing)
-    return directions[(facing_index + offset) % 4]
+def walk(position, facing, distance):
+    x, y = position
 
-def walk(distance):
-    steps = range(1, distance + 1)
-    if facing == 'north':
-        return [(x, y + i) for i in steps]
-    elif facing == 'east':
-        return [(x + i, y) for i in steps]
-    elif facing == 'south':
-        return [(x, y - i) for i in steps]
-    elif facing == 'west':
-        return [(x - i, y) for i in steps]
+    for _ in range(distance):
+        if facing == 0:
+            y += 1
+        elif facing == 1:
+            x += 1
+        elif facing == 2:
+            y -= 1
+        elif facing == 3:
+            x -= 1
 
-x = y = 0
-locations = [(x, y)]
-facing = 'north'
-for left_or_right, distance in instructions:
-    facing = turn(left_or_right)
-    new_locations = walk(distance)
+        yield (x, y)
 
-    solution = None
-    for new_location in new_locations:
-        if new_location in locations:
-            solution = new_location
+directions = ('north', 'east', 'south', 'west')
+facing = 0 # index into directions
+
+x, y = (0, 0)
+visited = set()
+done = False
+for direction, distance in instructions:
+    facing = (facing + (1 if direction == 'R' else -1)) % 4
+
+    for position in walk((x, y), facing, distance):
+        if position in visited:
+            done = True
             break
-    
-    if solution:
-        x, y = solution
-        break
+        else:
+            visited.add(position)
 
-    x, y = new_locations[-1]
-    locations.extend(new_locations)
+    x, y = position # the last position from walk
+
+    if done:
+        break
 
 print(abs(x) + abs(y))
