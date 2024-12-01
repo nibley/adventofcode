@@ -1,61 +1,63 @@
 from collections import defaultdict
-
-def parse():
-    unparsed_bots = list(bot_destinations.keys())
-    while unparsed_bots:
-        to_remove = []
-        for bot in unparsed_bots:
-            chips = bot_chips[bot]
-            if len(chips) == 2:
-                low_chip, high_chip = sorted(chips)
-                low_destination, high_destination = bot_destinations[bot]
-                
-                low_destination_type, low_destination_number = low_destination
-                if low_destination_type == 'bot':
-                    bot_chips[low_destination_number].add(low_chip)
-                else:
-                    output_chips[low_destination_number] = low_chip
-                
-                high_destination_type, high_destination_number = high_destination
-                if high_destination_type == 'bot':
-                    bot_chips[high_destination_number].add(high_chip)
-                else:
-                    output_chips[high_destination_number] = high_chip
-
-                to_remove.append(bot)
-        while to_remove:
-            parsed_bot = to_remove.pop()
-            unparsed_bots.remove(parsed_bot)
-
-        if 0 in output_chips and 1 in output_chips and 2 in output_chips:
-            print(output_chips[0] * output_chips[1] * output_chips[2])
-            return
-
+from math import prod
 
 bot_chips = defaultdict(set)
-output_chips = {}
-bot_destinations = defaultdict(list)
+destinations = defaultdict(list)
 while True:
     try:
         line = input()
     except EOFError:
         break
 
-    if line.startswith('value '):
-        pieces = line.split(' goes to bot ')
-        chip = int(pieces[0].split(' ')[1])
-        bot = int(pieces[1])
+    first_word, *rest = line.split()
+    if first_word == 'value':
+        chip, *_, bot = rest
+        chip, bot = map(int, (chip, bot))
         bot_chips[bot].add(chip)
     else:
-        pieces = line.split(' gives ')
-        bot = int(pieces[0].split(' ')[1])
-        
-        pieces = pieces[1].split(' and ')
-        low_destination = pieces[0].split(' ')
-        high_destination = pieces[1].split(' ')
-        bot_destinations[bot] = (
-            (low_destination[-2], int(low_destination[-1])),
-            (high_destination[-2], int(high_destination[-1]))
+        (
+            bot, _, _, _,
+            low_type, low_destination, _, _, _,
+            high_type, high_destination
+        ) = rest
+        bot, low_destination, high_destination = map(
+            int,
+            (bot, low_destination, high_destination)
+        )
+        destinations[bot] = (
+            (low_type, low_destination),
+            (high_type, high_destination)
         )
 
-parse()
+def find_goal():
+    bots_to_scan = set(destinations.keys())
+    while bots_to_scan:
+        bots_scanned = set()
+
+        for bot in bots_to_scan:
+            chips = bot_chips[bot]
+
+            if len(chips) == 2:
+                for (destination_type, destination), chip in zip(
+                    destinations[bot], sorted(chips)
+                ): # low and high destinations
+                    if destination_type == 'bot':
+                        bot_chips[destination].add(chip)
+                    else:
+                        assert destination not in output_chips
+                        output_chips[destination] = chip
+
+                bots_scanned.add(bot)
+
+        bots_to_scan.difference_update(bots_scanned)
+
+        goal_chips = tuple(
+            output_chips.get(goal_output) for goal_output in (0, 1, 2)
+        )
+        if not any(goal_chip is None for goal_chip in goal_chips):
+            return prod(goal_chips)
+
+    assert False
+
+output_chips = {}
+print(find_goal())
