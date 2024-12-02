@@ -6,30 +6,33 @@ while True:
         break
 
     lines.append(
-        tuple(int(item) for item in line.split())
+        tuple(
+            int(item) for item in line.split()
+        )
     )
 
-total = 0
-for line in lines:
-    bad = False
-    increasing = False
-    decreasing = False
-    for item, two in zip(line[ : -1], line[ 1 : ]):
-        if not increasing and not decreasing:
-            if two > item:
-                increasing = True
-            elif item > two:
-                decreasing = True
-        if increasing:
-            if two <= item:
-                bad = True
-        if decreasing:
-            if two >= item:
-                bad = True
-        if not 1 <= abs(two - item) <= 3:
-            bad = True
+def valid(line, predicate):
+    for first, second in zip(
+        line[    : -1 ],
+        line[  1 :    ]
+    ):
+        if (
+            not 1 <= abs(second - first) <= 3
+            or not predicate(first, second)
+        ):
+            return False
 
-    if not bad:
-        total += 1
+    return True
 
-print(total)
+print(
+    sum(
+        any(
+            valid(line, predicate)
+            for predicate in (
+                lambda first, second: first > second,
+                lambda first, second: first < second
+            )
+        )
+        for line in lines
+    )
+)
