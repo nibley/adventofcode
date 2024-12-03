@@ -5,80 +5,89 @@ while True:
     except EOFError:
         break
 
-    first_word, second_word, *pieces = line.split(' ')
-    pieces = ' '.join(pieces)
-    if first_word == 'swap':
-        if second_word == 'position':
-            indices = tuple(map(int, pieces.split(' with position ')))
-            operations.append(('swap position', *indices))
-        else: # swap letter
-            letters = pieces.split(' with letter ')
-            operations.append(('swap letter', *letters))
-    elif first_word == 'rotate':
-        if second_word == 'based':
-            letter = pieces.split(' ')[-1]
-            operations.append(('rotate letter', letter))
-        else: # rotate left/right
-            steps = int(pieces.split(' ')[-2])
-            operations.append(('rotate', second_word, steps))
-    elif first_word == 'reverse':
-        indices = tuple(map(int, pieces.split(' through ')))
-        operations.append((first_word, *indices))
-    elif first_word == 'move':
-        indices = tuple(map(int, pieces.split(' to position ')))
-        operations.append((first_word, *indices))
+    operation_type, second_word, *rest = line.split()
+
+    if operation_type == 'swap' and second_word == 'letter':
+        operation_type = 'swap letter'
+        first_argument, _, _, second_argument = rest
+        arguments = (first_argument, second_argument)
+    elif operation_type == 'rotate' and second_word == 'based':
+        operation_type = 'rotate letter'
+        *_, letter = rest
+        arguments = (letter, )
+    elif operation_type in ('swap', 'reverse', 'move'):
+        first_argument, *_, second_argument = rest
+        arguments = (int(first_argument), int(second_argument))
+    else: # rotate left or rotate right
+        steps, _ = rest
+        arguments = (second_word, int(steps))
+
+    operations.append(
+        (operation_type, arguments)
+    )
 
 def apply_operation(operation):
-    operation_type, *operation_args = operation
+    operation_type, arguments = operation
 
-    if operation_type == 'swap position':
-        lower_index, higher_index = sorted(operation_args)
-        lower_letter = password[lower_index]
-        higher_letter = password[higher_index]
+    if operation_type == 'swap':
+        lower_index, higher_index = sorted(arguments)
 
-        return password[:lower_index] + higher_letter + \
-            password[lower_index + 1 : higher_index] + lower_letter + \
-            password[higher_index + 1:]
+        return (
+            password[ : lower_index ]
+            + password[higher_index]
+            + password[lower_index + 1 : higher_index]
+            + password[lower_index]
+            + password[higher_index + 1 : ]
+        )
     elif operation_type == 'swap letter':
-        first_letter, second_letter = operation_args
+        first_letter, second_letter = arguments
 
-        return \
-            apply_operation(('swap position', \
-            password.index(first_letter), \
-            password.index(second_letter)))
+        return apply_operation(
+            (
+                'swap',
+                (password.index(first_letter), password.index(second_letter))
+            )
+        )
     elif operation_type == 'rotate letter':
-        [letter] = operation_args
+        letter, *_ = arguments
         steps = password.index(letter)
+
         if steps >= 4:
             steps += 1
+
         steps += 1
 
-        return apply_operation(('rotate', 'right', steps))
+        return apply_operation(
+            ('rotate', ('right', steps))
+        )
     elif operation_type == 'rotate':
-        direction, steps = operation_args
+        direction, steps = arguments
         offset = steps * (1 if direction == 'left' else -1)
         password_length = len(password)
 
-        return ''.join([
-            password[ (i + offset) % password_length ] for i in range(password_length)
-        ])
+        return ''.join(
+            password[ (i + offset) % password_length ]
+            for i in range(password_length)
+        )
     elif operation_type == 'reverse':
-        lower_index, higher_index = sorted(operation_args)
-        reversed_area = password[lower_index : higher_index + 1][::-1]
+        lower_index, higher_index = sorted(arguments)
+        reversed_area = password[lower_index : higher_index + 1][ : : -1 ]
 
-        return \
-            password[:lower_index] + \
-            reversed_area + \
-            password[higher_index + 1:]
+        return (
+            password[ : lower_index ]
+            + reversed_area
+            + password[higher_index + 1 : ]
+        )
     elif operation_type == 'move':
-        source_index, destination_index = operation_args
+        source_index, destination_index = arguments
         source_letter = password[source_index]
         password_without_source_letter = password.replace(source_letter, '')
 
-        return \
-            password_without_source_letter[:destination_index] + \
-            source_letter + \
-            password_without_source_letter[destination_index:]
+        return (
+            password_without_source_letter[ : destination_index ]
+            + source_letter
+            + password_without_source_letter[ destination_index : ]
+        )
 
 password = 'abcdefgh'
 for operation in operations:
