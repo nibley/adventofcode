@@ -5,22 +5,15 @@ while True:
     except EOFError:
         break
 
-    blocked_ranges.append(tuple(map(int, line.split('-'))))
+    start, stop = map(int, line.split('-'))
+    blocked_ranges.append(range(start, stop + 1))
 
-lowest_allowed = 0
-while blocked_ranges:
-    blocked_ranges_next_pass = []
-    found_block = False
-    for blocked_range in blocked_ranges:
-        if blocked_range[0] <= lowest_allowed <= blocked_range[1]:        
-            lowest_allowed = blocked_range[1] + 1
-            found_block = True
-        else:
-            blocked_ranges_next_pass.append(blocked_range)
-    
-    if not found_block:
-        break
+ip_address = 0
+for blocked_range in sorted(
+    blocked_ranges,
+    key=lambda blocked_range: blocked_range.start
+):
+    if ip_address in blocked_range:
+        ip_address = blocked_range.stop
 
-    blocked_ranges = blocked_ranges_next_pass
-
-print(lowest_allowed)
+print(ip_address)
