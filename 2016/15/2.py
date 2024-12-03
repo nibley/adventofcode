@@ -1,33 +1,39 @@
+from itertools import count
+
 discs = []
-disc_number = 1
 while True:
     try:
         line = input()
     except EOFError:
         break
-    
-    left_side, right_side = line.split(';')
-    disc_positions = int(left_side.split(' ')[3])
-    initial_position = int(right_side.split(' ')[-1][:-1])
-    corrected_initial_position = (initial_position + disc_number) % disc_positions
-    discs.append((disc_positions, corrected_initial_position))
 
-    disc_number += 1
+    (
+        _, _, _,
+        num_positions, _, _, _, _, _, _, _,
+        initial_position
+    ) = line[ : -1 ].split()
 
-discs.append((11, 7))
+    num_positions, initial_position = map(
+        int,
+        (num_positions, initial_position)
+    )
 
-time = 0
-while True:
-    right_time = True
-    for disc_positions, initial_position in discs:
-        position = (initial_position + time) % disc_positions
-        if position:
-            right_time = False
-            break
-    
-    if right_time:
-        break
+    discs.append(
+        (
+            num_positions,
+            (initial_position + len(discs) + 1) % num_positions
+        )
+    )
 
-    time += 1
+discs.append( (11, 7) )
 
-print(time)
+print(
+    next(
+        time
+        for time in count()
+        if not any(
+            (initial_position + time) % num_positions
+            for num_positions, initial_position in discs
+        )
+    )
+)

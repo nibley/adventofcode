@@ -3,38 +3,42 @@ from functools import cache
 
 @cache
 def get_hash(i):
-    result = f'{salt}{i}'
+    result = f'{SALT}{i}'
     for _ in range(2017):
         result = md5(result.encode()).hexdigest()
+
     return result
 
 def triple_in_hash(i):
     the_hash = get_hash(i)
-    for i in range(len(the_hash) - 2):
-        char = the_hash[i]
-        if char == the_hash[i + 1] == the_hash[i + 2]:
-            return char
-    
-    return False
+    for first, second, third in zip(
+        the_hash[    : -2 ],
+        the_hash[  1 : -1 ],
+        the_hash[  2 :    ]
+    ):
+        if first == second == third:
+            return first
+
+    return None
 
 def quintuple_in_next_thousand(i, char):
-    quint = char * 5
+    goal = char * 5
     for j in range(1000):
-        the_hash = get_hash(i + j + 1)
-        if quint in the_hash:
+        if goal in get_hash(i + j + 1):
             return True
-    
+
     return False
 
-salt = input()
-indices = []
+SALT = input()
 i = 0
-while len(indices) < 64:
+hits = 0
+last_hit = None
+while hits < 64:
     char = triple_in_hash(i)
-    if char:
-        if quintuple_in_next_thousand(i, char):
-            indices.append(i)
+    if char is not None and quintuple_in_next_thousand(i, char):
+        hits += 1
+        last_hit = i
 
     i += 1
 
-print(indices[-1])
+print(last_hit)

@@ -1,48 +1,53 @@
 from collections import defaultdict
 
-def parse():
-    unparsed_bots = list(bot_destinations.keys())
-    while unparsed_bots:
-        to_remove = []
-        for bot in unparsed_bots:
-            chips = bot_chips[bot]
-            if len(chips) == 2:
-                low_chip, high_chip = sorted(chips)
-                low_destination, high_destination = bot_destinations[bot]
-
-                bot_chips[low_destination].add(low_chip)
-                bot_chips[high_destination].add(high_chip)
-                to_remove.append(bot)
-        while to_remove:
-            parsed_bot = to_remove.pop()
-            unparsed_bots.remove(parsed_bot)
-        for bot, chips in bot_chips.items():
-            if 61 in chips and 17 in chips:
-                print()
-                print(bot)
-                return
-
-
 bot_chips = defaultdict(set)
-bot_destinations = defaultdict(list)
+destinations = defaultdict(list)
 while True:
     try:
         line = input()
     except EOFError:
         break
 
-    if line.startswith('value '):
-        pieces = line.split(' goes to bot ')
-        chip = int(pieces[0].split(' ')[1])
-        bot = int(pieces[1])
+    first_word, *rest = line.split()
+    if first_word == 'value':
+        chip, *_, bot = rest
+        chip, bot = map(int, (chip, bot))
         bot_chips[bot].add(chip)
     else:
-        pieces = line.split(' gives ')
-        bot = int(pieces[0].split(' ')[1])
-        
-        destinations = pieces[1].split(' and ')
-        low_destination = destinations[0].split(' ')
-        high_destination = destinations[1].split(' ')
-        bot_destinations[bot] = [int(low_destination[-1]), int(high_destination[-1])]
+        (
+            bot, _, _, _, _,
+            low_destination, _, _, _, _,
+            high_destination
+        ) = rest
+        bot, low_destination, high_destination = map(
+            int,
+            (bot, low_destination, high_destination)
+        )
+        destinations[bot] = (low_destination, high_destination)
 
-parse()
+def find_goal():
+    bots_to_scan = set(destinations.keys())
+    while bots_to_scan:
+        bots_scanned = set()
+
+        for bot in bots_to_scan:
+            chips = bot_chips[bot]
+
+            if len(chips) == 2:
+                low_chip, high_chip = sorted(chips)
+                low_destination, high_destination = destinations[bot]
+
+                bot_chips[low_destination].add(low_chip)
+                bot_chips[high_destination].add(high_chip)
+
+                bots_scanned.add(bot)
+
+        bots_to_scan.difference_update(bots_scanned)
+
+        for bot, chips in bot_chips.items():
+            if {61, 17}.issubset(chips):
+                return bot
+
+    assert False
+
+print(find_goal())

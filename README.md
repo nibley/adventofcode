@@ -70,6 +70,7 @@ Skipped problems
 - 2023 21 (part 2)
 
 Favorite problems
+- 2016 11 (gave me a lot of trouble until using BFS with immutables)
 - 2018 13 (minecarts)
 - 2017 21 (expanding Conway, was elegant)
 - 2022 21 (used eval trick to solve an equation)
@@ -93,3 +94,5 @@ Text outputs to animate
 
 Other
 - replace occurrences of 'indeces' with 'indices'
+- for rewrites
+  - replace astar function with the rewrite from 2016 13

@@ -1,32 +1,26 @@
-trap_cases = [
+TRAP_CASES = (
     (False, False, True),
-    (True, False, False),
-    (False, True, True),
-    (True, True, False),
-]
-def generate_cell(i, prev_row):
-    left = right = True
-    center = prev_row[i]
-    if i != 0:
-        left = prev_row[i - 1]
-    if i != width - 1:
-        right = prev_row[i + 1]
-    
-    return not ( (left, center, right) in trap_cases )
+    (True,  False, False),
+    (False, True,  True),
+    (True,  True,  False)
+)
+def generate_cell(x, last_row):
+    center = last_row[x]
+    left = True if x == 0 else last_row[x - 1]
+    right = True if x == WIDTH - 1 else last_row[x + 1]
 
-rows = []
-rows.append([char == '.' for char in input()])
-width = len(rows[0])
-num_rows = 40
-for num_row in range(1, num_rows):
-    prev_row = rows[num_row - 1]
-    new_row = [generate_cell(i, prev_row) for i in range(width)]
-    rows.append(new_row)
+    return (left, center, right) not in TRAP_CASES
 
-total_safe = 0
-for row in rows:
-    for tile in row:
-        if tile:
-            total_safe += 1
+# True for safe, False for trap
+FIRST_ROW = tuple( char == '.' for char in input() )
+WIDTH = len(FIRST_ROW)
 
-print(total_safe)
+def simulate(first_row):
+    yield sum(first_row)
+
+    last_row = first_row
+    for _ in range(1, 40):
+        last_row = tuple( generate_cell(x, last_row) for x in range(WIDTH) )
+        yield sum(last_row)
+
+print(sum(simulate(FIRST_ROW)))

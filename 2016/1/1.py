@@ -1,28 +1,21 @@
-raw = input()
-pieces = raw.split(', ')
 instructions = []
-for piece in pieces:
-    left_or_right = piece[0]
-    distance = int(piece[1:])
-    instructions.append((left_or_right, distance))
+for instruction in input().split(', '):
+    instructions.append( (instruction[0], int(instruction[ 1 : ])) )
 
-directions = ['north', 'east', 'south', 'west']
-def turn(left_or_right):
-    offset = 1 if left_or_right == 'R' else -1
-    facing_index = directions.index(facing)
-    return directions[(facing_index + offset) % 4]
+directions = ('north', 'east', 'south', 'west')
+facing = 0 # index into directions
 
-x = y = 0
-facing = 'north'
-for left_or_right, distance in instructions:
-    facing = turn(left_or_right)
-    if facing == 'north':
+x, y = (0, 0)
+for direction, distance in instructions:
+    facing = (facing + (1 if direction == 'R' else -1)) % 4
+
+    if facing == 0:
         y += distance
-    elif facing == 'east':
+    elif facing == 1:
         x += distance
-    elif facing == 'south':
+    elif facing == 2:
         y -= distance
-    elif facing == 'west':
+    elif facing == 3:
         x -= distance
 
 print(abs(x) + abs(y))
