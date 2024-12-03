@@ -1,14 +1,5 @@
-from operator import mul
-import re
-
-pattern = r'mul\((\d+),(\d+)\)'
-
-def get(line):
-    return sum(
-        int(a) * int(b)
-        for a, b in re.findall(pattern, line)
-    )
-    # return 0
+from re import findall
+from operator import mul # :)
 
 lines = []
 while True:
@@ -17,22 +8,11 @@ while True:
     except EOFError:
         break
 
-    lines.append(
-        line
-    )
+    lines.append(line)
 
-# total = 0
-# for line in lines:
-#     if (
-
-#     ):
-#         total += 1
-
-
-
+PATTERN = r'mul\(\d+,\d+\)'
 print(
     sum(
-        get(line)
-        for line in lines
+        map(eval, findall(PATTERN, ''.join(lines)))
     )
 )

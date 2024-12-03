@@ -1,36 +1,5 @@
-from math import prod
-import re
-
-pattern = r'mul\((\d+),(\d+)\)|(do)\(\)|(don\'t)\(\)'
-
-on = True
-
-def get(line):
-    total = 0
-    # on = True
-    global on
-    for match in re.findall(pattern, line):
-        if 'do' in match:
-            on = True
-            print('ON', match, on)
-        elif 'don\'t' in match:
-            on = False
-            print('OFF', match, on)
-        else:
-            print('  ', match, on)
-            if on:
-                print('    yes')
-                total += prod(
-                    int(item)
-                    for item in match
-                    if item
-                )
-            else:
-                print('    no')
-
-        print()
-
-    return total
+from re import findall
+from operator import mul # :)
 
 lines = []
 while True:
@@ -39,13 +8,17 @@ while True:
     except EOFError:
         break
 
-    lines.append(
-        line
-    )
+    lines.append(line)
 
-print(
-    sum(
-        get(line)
-        for line in lines
-    )
-)
+PATTERN = r'mul\(\d+,\d+\)|do\(\)|don\'t\(\)'
+total = 0
+enabled = True
+for match in findall(PATTERN, ''.join(lines)):
+    if match == 'do()':
+        enabled = True
+    elif match == 'don\'t()':
+        enabled = False
+    elif enabled:
+        total += eval(match)
+
+print(total)
