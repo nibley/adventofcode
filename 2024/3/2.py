@@ -1,5 +1,5 @@
 from re import findall
-from operator import mul # :)
+from operator import mul
 
 lines = []
 while True:
@@ -10,15 +10,22 @@ while True:
 
     lines.append(line)
 
-PATTERN = r'mul\(\d+,\d+\)|do\(\)|don\'t\(\)'
-total = 0
-enabled = True
-for match in findall(PATTERN, ''.join(lines)):
+def parse(match):
+    global enabled
+
     if match == 'do()':
         enabled = True
+        return 0
     elif match == 'don\'t()':
         enabled = False
-    elif enabled:
-        total += eval(match)
+        return 0
+    else:
+        return eval(match) if enabled else 0
 
-print(total)
+PATTERN = r'mul\(\d+,\d+\)|do\(\)|don\'t\(\)'
+enabled = True
+print(
+    sum(
+        map(parse, findall(PATTERN, ''.join(lines)))
+    )
+)
