@@ -1,45 +1,39 @@
-from functools import cache
+generate_tile = lambda x, y: (
+    x * (x + 3 + 2*y) + y * (1 + y) + SECRET
+).bit_count() % 2 == 0
 
-@cache
-def generate_tile(x, y):
-    formula = x * (x + 3 + 2*y) + y * (1 + y) + secret
-    binary_string = '{0:b}'.format(formula)
-    bits_odd = len(binary_string.replace('0', '')) % 2
-    return '#' if bits_odd else '.'
+NEIGHBOR_OFFSETS = ((0, 1), (0, -1), (1, 0), (-1, 0))
+def get_neighbors(position):
+    x, y = position
+    for x_offset, y_offset in NEIGHBOR_OFFSETS:
+        neighbor_x, neighbor_y = (x + x_offset, y + y_offset)
+        if (
+            neighbor_x in range(MAZE_WIDTH)
+            and neighbor_y in range(MAZE_HEIGHT)
+            and generate_tile(neighbor_x, neighbor_y)
+        ):
+            yield (neighbor_x, neighbor_y)
 
-def check_move(start, move):
-    neighbor = (start[0] + move[0], start[1] + move[1])
+SECRET = int(input())
+START_X, START_Y = (1, 1)
+STEPS = 50
 
-    if 0 <= neighbor[0] < maze_width:
-        if 0 <= neighbor[1] < maze_height:
-            if generate_tile(*neighbor) == '.':
-                return neighbor
+MAZE_WIDTH = STEPS + START_X + 1
+MAZE_HEIGHT = STEPS + START_Y + 1
 
-    return False
-
-secret = int(input())
-start_location = (1, 1)
-num_moves = 50
-maze_width = num_moves + start_location[0] + 1
-maze_height = num_moves + start_location[1] + 1
-
-locations = set([start_location])
-location_neighbors = {}
-neighbor_offsets = [(0,1),(0,-1),(1,0),(-1,0)]
-
-for _ in range(num_moves):
-    new_locations = []
+locations = set([(START_X, START_Y)])
+neighbors = {}
+for _ in range(STEPS):
+    new_locations = set()
     for location in locations:
-        if location not in location_neighbors:
-            valid_neighbors = []
-            for neighbor_offset in neighbor_offsets:
-                valid_neighbor = check_move(location, neighbor_offset)
-                if valid_neighbor:
-                    valid_neighbors.append(valid_neighbor)
-            location_neighbors[location] = tuple(valid_neighbors)
-            new_locations.extend(valid_neighbors)
+        if location not in neighbors:
+            location_neighbors = get_neighbors(location)
+            neighbors[location] = location_neighbors
+            new_locations.update(location_neighbors)
 
-    if new_locations:
-        locations.update(new_locations)
+    if not new_locations:
+        break
+
+    locations.update(new_locations)
 
 print(len(locations))

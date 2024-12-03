@@ -78,3 +78,6 @@ Other problems to revisit
 Seems to have an unusually variable input generation. My input cannot be solved by a simple approach almost like part 1's, but many people's, including a friend's and those of several bloggers, can. I landed on a stochastic approach but a pathfinding approach would be fun to revisit (as long as it had ways to pare down the combinatorial explosion that I experienced with a naive approach even when starting with the medicine and working towards shorter and shorter molecules).
 - 2015 20 (find more efficient approach)
 
+Other
+- for rewrites
+  - replace astar function with the rewrite from 2016 13
