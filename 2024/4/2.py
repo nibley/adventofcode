@@ -1,7 +1,6 @@
-# from collections import defaultdict
-# grid = defaultdict(lambda: '_')
+from collections import defaultdict
 
-grid = {}
+grid = defaultdict(lambda: '_')
 y = 0
 while True:
     try:
@@ -15,34 +14,23 @@ while True:
     y += 1
 
 height = y
-width = sum( x == 0 for x, _ in grid )
+width = len(line)
 
-# TODO wrong height on small test
-
-total = 0
-for (x, y), cell in grid.items():
-    if cell != 'A':
-        continue
-
-    if (
-        all(
-            diagonal == {'S', 'M'}
+print(
+    sum(
+        cell == 'A'
+        and all(
+            set( grid[corner] for corner in diagonal ) == {'S', 'M'}
             for diagonal in (
-                set(
-                    (
-                        grid.get((x - 1, y - 1), '_'),
-                        grid.get((x + 1, y + 1), '_')
-                    )
+                (
+                    (x - 1, y - 1), (x + 1, y + 1)
                 ),
-                set(
-                    (
-                        grid.get((x + 1, y - 1), '_'),
-                        grid.get((x - 1, y + 1), '_')
-                    )
+                (
+                    (x + 1, y - 1), (x - 1, y + 1)
                 )
             )
         )
-    ):
-        total += 1
-
-print(total)
+        # tuple because of defaultdict key insertion
+        for (x, y), cell in tuple(grid.items())
+    )
+)

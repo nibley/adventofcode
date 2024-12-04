@@ -14,48 +14,34 @@ while True:
     y += 1
 
 height = y
-width = sum( x == 0 for x, _ in grid )
+width = len(line)
 
-# print(height, width)
+def count_matches(positions):
+    text = ''.join(positions)
+    return sum( text.count(xmas) for xmas in {'XMAS', 'SAMX'} )
 
-# TODO wrong height on small
-
-print(
-    (
-    # sum(
-    # tuple(
-        sum(
-            # horizontal
-            sum(
-                ''.join( grid[(x, y)] for x in range(width) ).count(xmas)
-                for xmas in {'XMAS', 'SAMX'}
-            )
-            for y in range(height)
-        )
-        + sum(
-            # vertical
-            sum(
-                ''.join( grid[(x, y)] for y in range(height) ).count(xmas)
-                for xmas in {'XMAS', 'SAMX'}
-            )
-            for x in range(width)
-        )
-        + sum(
-            # diagonal down/right
-            sum(
-                ''.join( grid[(x + y, y)] for y in range(-1 * height, height) ).count(xmas)
-                for xmas in {'XMAS', 'SAMX'}
-            )
-            for x in range(-1 * width, width)
-        )
-        + sum(
-            # diagonal down/left
-            # ''.join( grid[(x + y, y)] for y in range(height, -1 * height, -1) )
-            sum(
-                ''.join( grid[(x + (height - y), y)] for y in range(height, -1 * height, -1) ).count(xmas)
-                for xmas in {'XMAS', 'SAMX'}
-            )
-            for x in range(width, -1 * width, -1)
-        )
-    )
+horizontal = sum(
+    count_matches( grid[ (x, y) ] for x in range(width) )
+    for y in range(height)
 )
+
+vertical = sum(
+    count_matches( grid[ (x, y) ] for y in range(height) )
+    for x in range(width)
+)
+
+down_and_right = sum(
+    count_matches(
+        grid[ (x + y, y) ] for y in range(-1 * height, height)
+    )
+    for x in range(-1 * width, width)
+)
+
+down_and_left = sum(
+    count_matches(
+        grid[ (x + (height - y), y) ] for y in range(height, -1 * height, -1)
+    )
+    for x in range(width, -1 * width, -1)
+)
+
+print(horizontal + vertical + down_and_right + down_and_left)
