@@ -1,10 +1,19 @@
-raw = input()
-digits = list(map(int, raw))
-digits_length = len(digits)
-half_length = len(digits) // 2
-total = 0
-for i, digit in enumerate(digits):
-    if digit == digits[(i + half_length) % digits_length]:
-        total += digit
+from itertools import cycle, islice
 
-print(total)
+digits = tuple(map(int, input()))
+assert not len(digits) % 2
+
+print(
+    sum(
+        first_digit
+        for first_digit, second_digit in zip(
+            digits,
+            islice(
+                cycle(digits),
+                len(digits) // 2,
+                None # no stop value
+            )
+        )
+        if first_digit == second_digit
+    )
+)
