@@ -1,29 +1,18 @@
-target_value = int(input())
-
-'''
-37  36  35  34  33  32  31
-38  17  16  15  14  13  30
-39  18   5   4   3  12  29
-40  19   6   1   2  11  28
-41  20   7   8   9  10  27
-42  21  22  23  24  25  26
-43  44  45  46  47  48  49
-'''
+goal_square = int(input())
 
 def spiral_position_generator():
     x = 0
     y = 0
-    yield (x, y)
+
     side_length = 1
-    
     while True:
         side_length += 2
 
-        x += 1 # step right
+        x += 1 # step right into the next spiral layer
         yield (x, y)
 
         for _ in range(side_length - 2): # go up
-            y += 1
+            y -= 1
             yield (x, y)
 
         for _ in range(side_length - 1): # go left
@@ -31,7 +20,7 @@ def spiral_position_generator():
             yield (x, y)
 
         for _ in range(side_length - 1): # go down
-            y -= 1
+            y += 1
             yield (x, y)
 
         for _ in range(side_length - 1): # go right
@@ -40,29 +29,30 @@ def spiral_position_generator():
 
 def generate_cell(position):
     x, y = position
-    return sum(map(
-        lambda position: grid.get(position, 0),
-        [
-            (x - 1, y + 1),
-            (x    , y + 1),
-            (x + 1, y + 1),
-            (x - 1, y    ),
-            (x + 1, y    ),
+    return sum(
+        grid.get(neighbor, 0)
+        for neighbor in (
             (x - 1, y - 1),
             (x    , y - 1),
             (x + 1, y - 1),
-        ]))
+            (x - 1, y    ),
+            (x + 1, y    ),
+            (x - 1, y + 1),
+            (x    , y + 1),
+            (x + 1, y + 1)
+        )
+    )
 
-grid = { (0, 0): 1 }
-g = spiral_position_generator()
-next(g) # filled in first cell manually
+grid = {}
+positions = spiral_position_generator()
 
-while True:
-    cell = next(g)
-    cell_value = generate_cell(cell)
+position = (0, 0)
+last_square = 1
 
-    if cell_value > target_value:
-        print(cell_value)
-        break
+grid[position] = last_square
+while not last_square > goal_square:
+    position = next(positions)
+    last_square = generate_cell(position)
+    grid[position] = last_square
 
-    grid[cell] = cell_value
+print(last_square)
