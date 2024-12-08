@@ -1,21 +1,15 @@
-num_valid = 0
+phrases = []
 while True:
     try:
         line = input()
     except EOFError:
         break
 
-    unique_words = set()
-    words = line.split(' ')
-    valid = True
-    for word in words:
-        if word in unique_words:
-            valid = False
-            break
-        
-        unique_words.add(word)
-    
-    if valid:
-        num_valid += 1
+    phrases.append(line.split())
 
-print(num_valid)
+print(
+    sum(
+        len(phrase) == len(set(phrase))
+        for phrase in phrases
+    )
+)
