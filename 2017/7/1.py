@@ -6,18 +6,17 @@ while True:
     except EOFError:
         break
 
-    pieces = line.split(' -> ')
-    if len(pieces) == 1:
-        name, _ = pieces[0].split(' ')
-        children = ()
+    name, _, *rest = line.replace(',', '').split()
+    program_names.add(name)
+
+    if rest:
+        _, *children = rest
     else:
-        left_side, right_side = pieces
-        name, _ = left_side.split(' ')
-        children = tuple(right_side.split(', '))
+        children = ()
 
     for child in children:
         child_to_parent[child] = name
 
-    program_names.add(name)
-
-print(*( program_names - set(child_to_parent.keys()) ))
+programs_without_parents = program_names.difference(child_to_parent)
+assert len(programs_without_parents) == 1
+print(programs_without_parents.pop())
