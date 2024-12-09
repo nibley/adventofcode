@@ -1,26 +1,31 @@
-raw = input()
+from collections import defaultdict
 
-group_level = 1
-group_count_by_level = {}
+stream = input()
+
 in_garbage = False
 next_char_canceled = False
-for char in raw:
+group_level = 1
+group_count_by_level = defaultdict(lambda: 0)
+for char in stream:
     if in_garbage:
         if next_char_canceled:
             next_char_canceled = False
-        elif char == '>':
-            in_garbage = False
         elif char == '!':
             next_char_canceled = True
+        elif char == '>':
+            in_garbage = False
     else:
         if char == '<':
             in_garbage = True
         elif char == '{':
-            group_count_by_level.setdefault(group_level, 0)
             group_count_by_level[group_level] += 1
-
             group_level += 1
         elif char == '}':
             group_level -= 1
 
-print(sum( (k * v for k, v in group_count_by_level.items()) ), 'score')
+print(
+    sum(
+        level * num_groups
+        for level, num_groups in group_count_by_level.items()
+    )
+)

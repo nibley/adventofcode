@@ -1,16 +1,16 @@
-raw = input()
+stream = input()
 
-garbage_count = 0
 in_garbage = False
 next_char_canceled = False
-for char in raw:
+garbage_count = 0
+for char in stream:
     if in_garbage:
         if next_char_canceled:
             next_char_canceled = False
-        elif char == '>':
-            in_garbage = False
         elif char == '!':
             next_char_canceled = True
+        elif char == '>':
+            in_garbage = False
         else:
             garbage_count += 1
     else:
