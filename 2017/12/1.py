@@ -7,27 +7,21 @@ while True:
     except EOFError:
         break
 
-    left_side, right_side = line.split(' <-> ')
-    program = int(left_side)
-    connected_programs = map(int, right_side.split(', '))
+    program, *connected_programs = map(
+        int,
+        line.replace(' <-> ', ', ').split(', ')
+    )
     connections[program].update(connected_programs)
 
-programs_in_group = set([0])
-programs_to_crawl = [0]
-while True:
-    found_new_program = False
-
-    new_programs_to_crawl = set()
+group = set([0])
+programs_to_crawl = group
+while programs_to_crawl:
+    new_programs_found = set()
     for program in programs_to_crawl:
-        for connected_program in connections[program]:
-            if connected_program not in programs_in_group:
-                found_new_program = True
-                new_programs_to_crawl.add(connected_program)
+        new_programs_found.update(connections[program])
 
-    if not found_new_program:
-        break
+    new_programs_found.difference_update(group)
+    group.update(new_programs_found)
+    programs_to_crawl = new_programs_found
 
-    programs_in_group.update(new_programs_to_crawl)
-    programs_to_crawl = new_programs_to_crawl
-
-print(len(programs_in_group))
+print(len(group))

@@ -7,46 +7,33 @@ while True:
     except EOFError:
         break
 
-    left_side, right_side = line.split(' <-> ')
-    program = int(left_side)
-    connected_programs = map(int, right_side.split(', '))
+    program, *connected_programs = map(
+        int,
+        line.replace(' <-> ', ', ').split(', ')
+    )
+
     connections[program].update(connected_programs)
 
-def crawl_group(program):
-    group = set([program])
-    programs_to_crawl = [program]
-    while True:
-        found_new_program = False
-        new_programs_to_crawl = set()
+def crawl_group(starting_program):
+    group = set([starting_program])
+    programs_to_crawl = group
+    while programs_to_crawl:
+        new_programs_found = set()
         for program in programs_to_crawl:
-            for connected_program in connections[program]:
-                if connected_program not in group:
-                    found_new_program = True
-                    new_programs_to_crawl.add(connected_program)
+            new_programs_found.update(connections[program])
 
-        if not found_new_program:
-            break
+        new_programs_found.difference_update(group)
+        group.update(new_programs_found)
+        programs_to_crawl = new_programs_found
 
-        group.update(new_programs_to_crawl)
-        programs_to_crawl = new_programs_to_crawl
+    return group
 
-    return tuple(group)
+num_groups = 1
+grouped_programs = crawl_group(0)
+ungrouped_programs = set(connections).difference(grouped_programs)
+while ungrouped_programs:
+    num_groups += 1
+    grouped_programs.update(crawl_group(ungrouped_programs.pop()))
+    ungrouped_programs.difference_update(grouped_programs)
 
-groups = set()
-for program in connections.keys():
-    group_containing_program = None
-    for group in groups:
-        if program in group:
-            group_containing_program = group
-            break
-    
-    if group_containing_program is not None:
-        continue
-
-    # don't yet know about the group containing this program 
-    new_group = crawl_group(program)
-    print(f'Found group {new_group}')
-    groups.add(new_group)
-
-print()
-print(len(groups))
+print(num_groups)
