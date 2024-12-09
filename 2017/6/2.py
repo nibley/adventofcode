@@ -1,30 +1,28 @@
-raw = input()
-banks = list(int(piece) for piece in raw.split('\t'))
-num_banks = len(banks)
-states = []
+banks = [ int(piece) for piece in input().split() ]
+NUM_BANKS = len(banks)
 
+# { tuple(banks) : first cycle number for that state }
+state_first_occurrences = {}
 cycles_completed = 0
-while True:
-    current_state = tuple(banks)
-    if current_state in states:
-        break
-    states.append(current_state)
+current_state = tuple(banks)
+while current_state not in state_first_occurrences:
+    state_first_occurrences[current_state] = cycles_completed
 
-    fullest_bank, fullest_contents = sorted(enumerate(banks), \
-        key=lambda item: (item[1], -1 * item[0])
-    )[-1]
-    banks[fullest_bank] = 0
-    share_per_bank = fullest_contents // num_banks
-    for i in range(num_banks):
-        banks[i] += share_per_bank
+    fullest_index = max(
+        range(NUM_BANKS),
+        key=banks.__getitem__
+    )
+    share_per_bank, remainder = divmod(banks[fullest_index], NUM_BANKS)
 
-    remainder = fullest_contents % num_banks
-    remainder_recipients = [(fullest_bank + i) % num_banks \
-        for i in range(1, remainder + 1)
+    banks[fullest_index] = 0
+    banks = [
+        item + share_per_bank
+        for item in banks
     ]
-    for i in remainder_recipients:
-        banks[i] += 1
+    for i in range(remainder):
+        banks[ (fullest_index + i + 1) % NUM_BANKS ] += 1
 
     cycles_completed += 1
+    current_state = tuple(banks)
 
-print(cycles_completed - states.index(current_state))
+print(cycles_completed - state_first_occurrences[current_state])
