@@ -1,22 +1,28 @@
-divisor = 2147483647
-bitmask = 2 ** 16 - 1
+from itertools import islice
+
+DIVISOR = 2147483647
+GENERATOR_A_MULTIPLIER = 16807
+GENERATOR_B_MULTIPLIER = 48271
+BITMASK = 2 ** 16 - 1
+
 def generator(initial, multiplier):
     value = initial
     while True:
-        value = (value * multiplier) % divisor
-        yield value & bitmask
+        value = (value * multiplier) % DIVISOR
+        yield value & BITMASK
 
-generator_a_initial = int(input().split(' ')[-1])
-generator_a_multiplier = 16807
-generator_a = generator(generator_a_initial, generator_a_multiplier)
+generator_a_initial, generator_b_initial = (
+    int(input().split()[-1]) for _ in range(2)
+)
+generator_a = generator(generator_a_initial, GENERATOR_A_MULTIPLIER)
+generator_b = generator(generator_b_initial, GENERATOR_B_MULTIPLIER)
 
-generator_b_initial = int(input().split(' ')[-1])
-generator_b_multiplier = 48271
-generator_b = generator(generator_b_initial, generator_b_multiplier)
-
-matches = 0
-for _ in range(40_000_000):
-    if next(generator_a) == next(generator_b):
-        matches += 1
-
-print(matches)
+print(
+    sum(
+        generator_a_value == generator_b_value
+        for generator_a_value, generator_b_value in islice(
+            zip(generator_a, generator_b),
+            40_000_000
+        )
+    )
+)
