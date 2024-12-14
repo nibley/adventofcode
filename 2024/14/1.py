@@ -1,77 +1,44 @@
 from math import prod
 
-ps = []
-vs = []
+positions = []
+velocities = []
 while True:
     try:
         line = input()
     except EOFError:
         break
 
-    p, v = line.split()
+    position, velocity = (
+        tuple( int(n) for n in vector.split('=')[1].split(',') )
+        for vector in line.split()
+    )
 
-    p = p.split('=')[1]
-    v = v.split('=')[1]
+    positions.append(position)
+    velocities.append(velocity)
 
-    ps.append(tuple(map(int, p.split(','))))
-    vs.append(tuple(map(int, v.split(','))))
+HEIGHT = 103
+WIDTH = 101
 
-height = 103
-width = 101
-
-# height = 7; width = 11
-
-assert height % 2
-assert width % 2
-
-def step(ps):
-    new_ps = []
-
-    for p, v in zip(ps, vs):
-        p_x, p_y = p
-        v_x, v_y = v
-
-        p_x = (p_x + v_x) % width
-        p_y = (p_y + v_y) % height
-
-        new_ps.append(
-            (p_x, p_y)
-        )
-
-    return new_ps
-
-half_height = height // 2
-half_width = width // 2
-
-# print(height, half_height)
-# print(width, half_width)
+assert HEIGHT % 2
+assert WIDTH % 2
 
 for _ in range(100):
-    ps = step(ps)
+    positions = tuple(
+        ((p_x + v_x) % WIDTH, (p_y + v_y) % HEIGHT)
+        for (p_x, p_y), (v_x, v_y) in zip(positions, velocities)
+    )
 
-for y in range(height):
-    for x in range(width):
-        if y == half_height or x == half_width:
-            print('o', end='')
-        else:
-            n = sum( p == (x, y) for p in ps )
-            print(n or '.', end='')
-    print()
+HALF_HEIGHT = HEIGHT // 2
+HALF_WIDTH = WIDTH // 2
+quadrant_totals = [0, 0, 0, 0]
+for p_x, p_y in positions:
+    if p_x < HALF_WIDTH and p_y < HALF_HEIGHT:
+        quadrant_totals[0] += 1
+    elif p_x > HALF_WIDTH and p_y < HALF_HEIGHT:
+        quadrant_totals[1] += 1
+    elif p_x < HALF_WIDTH and p_y > HALF_HEIGHT:
+        quadrant_totals[2] += 1
+    elif p_x > HALF_WIDTH and p_y > HALF_HEIGHT:
+        quadrant_totals[3] += 1
 
-
-quads = [0, 0, 0, 0]
-
-for x, y in ps:
-    if x < half_width and y < half_height:
-        quads[0] += 1
-    elif x > half_width and y < half_height:
-        quads[1] += 1
-    elif x < half_width and y > half_height:
-        quads[2] += 1
-    elif x > half_width and y > half_height:
-        quads[3] += 1
-
-print(quads)
-
-print()
-print(prod(quads))
+print(prod(quadrant_totals))
