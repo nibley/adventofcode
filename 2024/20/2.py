@@ -7,7 +7,6 @@ start_y = None
 goal_x = None
 goal_y = None
 
-# grid = defaultdict(lambda: False)
 grid = {}
 y = 0
 while True:
@@ -63,16 +62,9 @@ def get_neighbors(position):
     x, y = position
 
     for x_offset, y_offset in DIRECTIONS:
-        new_x = x + x_offset
-        new_y = y + y_offset
-        new_position = (new_x, new_y)
+        new_position = (x + x_offset, y + y_offset)
 
-        if (
-            new_position in grid
-            # new_x in range(1, WIDTH - 1)
-            # and new_y in range(1, HEIGHT - 1)
-            and grid[new_position]
-        ):
+        if grid.get(new_position):
             yield new_position
 
 unvisited = set(
@@ -85,16 +77,10 @@ distances_from_start = defaultdict(lambda: inf)
 distances_from_start[start] = 0
 came_from = {}
 
-while unvisited:
-    # if not len(unvisited) % 100: print(len(unvisited))
-    # print(len(unvisited))
-
-    position = min(unvisited, key=distances_from_start.__getitem__)
-    if position == goal:
-        print('DONE')
-        break
-
+position = start
+while unvisited and position != goal:
     position_score = distances_from_start[position]
+
     for neighbor in get_neighbors(position):
         old_score = distances_from_start[neighbor]
         new_score = position_score + 1
@@ -104,6 +90,7 @@ while unvisited:
             came_from[neighbor] = position
 
     unvisited.remove(position)
+    position = min(unvisited, key=distances_from_start.__getitem__)
 
 assert distances_from_start[goal] < inf
 
@@ -114,31 +101,12 @@ while position != start:
     path.add(position)
 
 path.add(position)
-print('start is last', start == position)
-
-print('start in path', start in path)
-print('goal in path', goal in path)
-
 baseline_path = len(path)
-# baseline_path = len(path) - 1
-print('baseline', len(path))
-
-
-
-
-
-
-
-
-
-print()
 
 def get_cheats(position):
     steps = 0
     end_positions = set()
     visited = {position}
-    # end_positions = { (position, 0) }
-    # end_positions = {position}
     positions_to_crawl = {position}
 
     # while steps < 6:
@@ -154,78 +122,42 @@ def get_cheats(position):
                     end_positions.add(
                         (neighbor, steps)
                     )
-                    # end_positions.add(neighbor)
                     new_positions_found.add(neighbor)
 
                 visited.add(neighbor)
 
         positions_to_crawl = new_positions_found
 
-    # print(len(end_positions))
-
     return end_positions
 
-# deb_position = start
-deb_position = None
+def get_savings():
+    # deb_position = start
+    # deb_position = None
 
-freq = {}
-# for position in [start]:
-# for position in path:
-for i, position in enumerate(path):
-    # break
-    if not i % 100: print(i)
+    # for position in path:
+    for i, position in enumerate(path):
+        if not i % 100: print(i)
 
-    if position == deb_position:
-        print(position, 'cheats')
+        # if position == deb_position: print(position, 'cheats')
 
-    end_positions = get_cheats(position)
-    for end_position, steps in end_positions:
-    # for end_position, steps in get_cheats(position):
-        dx = abs(end_position[0] - position[0])
-        dy = abs(end_position[1] - position[1])
-        if steps != dx + dy:
-            visualize((position, end_position))
-            # visualize((end_position, ))
-            print(f'{position=} {end_position=}')
-            print(f'{steps=} {dx=} {dy=}')
-            assert False
+        for end_position, steps in get_cheats(position):
+            if grid.get(end_position):
+                # if position == deb_position:
+                #     visualize((end_position, ))
+                #     print('  end', end_position, 'in', steps, ', save', savings)
 
-        if grid.get(end_position):
-            cost = (
-                distances_from_start[position] # to start
-                + baseline_path - distances_from_start[end_position] # to goal
-                + steps
-            )
-            savings = baseline_path - cost
+                yield (
+                    distances_from_start[end_position]
+                    - distances_from_start[position]
+                    - steps
+                )
 
-            # savings = (
-            #     distances_from_start[end_position]
-            #     - distances_from_start[position]
-            #     - steps
-            # )
+# print('\n\n\n')
+# for savings in sorted(freq): print(f'{freq[savings]} save {savings}')
 
-            freq.setdefault(savings, 0)
-            freq[savings] += 1
-
-            if position == deb_position:
-                visualize((end_position, ))
-                print('  end', end_position, 'in', steps, ', save', savings)
-
-    if position == deb_position:
-        visualize(
-            tuple( p for p, _ in end_positions )
-        )
-
-print('\n\n\n')
-for savings in sorted(freq): print(f'{freq[savings]} save {savings}')
-
-total = 0
-for savings in sorted(freq):
-    # if savings >= 50:
-    if savings >= 100:
-        total += freq[savings]
-
-print()
-print(total)
-
-# TODO haven't run
+print(
+    sum(
+        savings >= 100
+        for savings in get_savings()
+    )
+)
