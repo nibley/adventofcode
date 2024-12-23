@@ -1,7 +1,6 @@
 from itertools import combinations
 
 edges = {}
-computers = set()
 while True:
     try:
         line = input()
@@ -10,38 +9,26 @@ while True:
 
     first, second = line.split('-')
 
-    edges.setdefault(first, set())
-    edges[first].add(second)
-    edges[first].add(first)
+    edges.setdefault(first, set()).update(
+        (first, second)
+    )
+    edges.setdefault(second, set()).update(
+        (first, second)
+    )
 
-    edges.setdefault(second, set())
-    edges[second].add(first)
-    edges[second].add(second)
-
-    computers.add(first)
-    computers.add(second)
-
-good = []
-for computer in computers:
-    connected = edges[computer]
-
-    for length in range(1, len(connected) + 1):
-        for combination in combinations(connected, length):
-            if all(
-                computer in edges[other]
-                for computer in combination
-                for other in combination
-                if computer != other
-            ):
-                good.append(frozenset(combination))
-
-biggest = max(
-    good,
-    key=len
+options = (
+    combination
+    for neighbors in edges.values()
+    for length in range(2, len(neighbors) + 1)
+    for combination in combinations(neighbors, length)
+    if all(
+        first in edges[second] and second in edges[first]
+        for first, second in combinations(combination, 2)
+    )
 )
 
 print(
     ','.join(
-        map(str, sorted(biggest))
+        sorted(max(options, key=len))
     )
 )
