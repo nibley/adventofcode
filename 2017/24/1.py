@@ -18,17 +18,20 @@ def get_bridges(free_end, used=None):
     if used is None:
         used = frozenset()
 
-    yield sum(
-        end
-        for part in map(parts.__getitem__, used)
-        for end in part
-    )
-
+    found_another_part = False
     for i, part in enumerate(parts):
         if i not in used:
             other_end = get_other_end(free_end, part)
             if other_end is not None:
+                found_another_part = True
                 yield from get_bridges(other_end, used | {i})
+
+    if not found_another_part:
+        yield sum(
+            end
+            for part in map(parts.__getitem__, used)
+            for end in part
+        )
 
 print(
     max(

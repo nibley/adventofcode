@@ -18,13 +18,16 @@ def get_bridges(free_end, used=None):
     if used is None:
         used = frozenset()
 
-    yield used
-
+    found_another_part = False
     for i, part in enumerate(parts):
         if i not in used:
             other_end = get_other_end(free_end, part)
             if other_end is not None:
+                found_another_part = True
                 yield from get_bridges(other_end, used | {i})
+
+    if not found_another_part:
+        yield used
 
 bridges = {}
 for starting_part_index, starting_part in enumerate(parts):
