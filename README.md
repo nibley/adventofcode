@@ -67,6 +67,7 @@ Skipped problems
 - 2023 19 (part 2)
 - 2023 20 (part 2)
 - 2023 21 (part 2)
+- 2024 17 (part 2)
 
 Favorite problems
 - 2016 11 (gave me a lot of trouble until using BFS with immutables)
