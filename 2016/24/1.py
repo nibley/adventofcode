@@ -1,136 +1,71 @@
-# modified from 2015 9
-
-import heapq
-from itertools import combinations, permutations
-from math import inf
-
-def astar(array, start, goal):
-    # from https://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/
-
-    neighbors = [(0,1),(0,-1),(1,0),(-1,0)]
-    close_set = set()
-    came_from = {}
-
-    heuristic = lambda a, b: (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2
-    gscore = {start: 0}
-    fscore = {start: heuristic(start, goal)}
-    oheap = []
-    array_shape = (maze_width, maze_height)
-
-    heapq.heappush(oheap, (fscore[start], start))
-
-    while oheap:
-        current = heapq.heappop(oheap)[1]
-        if current == goal:
-            data = []
-            while current in came_from:
-                data.append(current)
-                current = came_from[current]
-            return data
-
-        close_set.add(current)
-        for i, j in neighbors:
-            neighbor = (current[0] + i, current[1] + j)
-            tentative_g_score = gscore[current] + heuristic(current, neighbor)
-
-            if 0 <= neighbor[0] < array_shape[0]:
-                if 0 <= neighbor[1] < array_shape[1]:
-                    if array[neighbor[1]][neighbor[0]] == '#':
-                        continue
-                else:
-                    continue
-            else:
-                continue
-
-            if neighbor in close_set and tentative_g_score >= gscore.get(neighbor, 0):
-                continue
-
-            if  tentative_g_score < gscore.get(neighbor, 0) or neighbor not in [i[1]for i in oheap]:
-                came_from[neighbor] = current
-                gscore[neighbor] = tentative_g_score
-                fscore[neighbor] = tentative_g_score + heuristic(neighbor, goal)
-                heapq.heappush(oheap, (fscore[neighbor], neighbor))
-
-    return False
-
-'''
-def parse_edge(line):
-    left_side, cost = line.split(' = ')
-    source, destination = left_side.split(' to ')
-    edges.setdefault(source, {})
-    edges[source][destination] = int(cost)
-'''
-
-def get_edge(source, destination):
-    if source in edges and destination in edges[source]:
-        return edges[source][destination]
-    
-    return edges[destination][source]
-    
-def path_cost(path):
-    total_cost = get_edge('0', path[0])
-    for i, source in enumerate(path[:-1]):
-        destination = path[i + 1]
-        total_cost += get_edge(source, destination)
-    return total_cost
-
-maze = []
-waypoints = {}
+nodes = {}
+grid = {}
+y = 0
 while True:
     try:
         line = input()
     except EOFError:
         break
 
-    maze_row = []
-    for column, char in enumerate(line):
-        if char == '#':
-            maze_row.append(False)
-        else:
-            maze_row.append(True)
+    for x, char in enumerate(line):
+        if char not in '.#':
+            nodes[char] = (x, y)
 
-            if char != '.': # waypoint
-                row = len(maze)
-                waypoints[char] = (column, row)
-    
-    maze.append(maze_row)
+        grid[ (x, y) ] = char
 
-maze_height = len(maze)
-maze_width = len(maze[0])
+    y += 1
 
-for waypoint in waypoints:
-    print(f'{waypoint}\t{waypoints[waypoint]}')
+def get_edges(start_node):
+    steps = 0
+    visited = set()
+    positions_to_crawl = {nodes[start_node]}
+    while positions_to_crawl:
+        new_positions_found = set()
 
-'''
-print()
-for maze_row in maze:
-    print(''.join(['.' if char else '#' for char in maze_row]))
-'''
+        for position in positions_to_crawl:
+            visited.add(position)
 
-nodes = sorted(list(waypoints.keys()))
-node_pairs = combinations(nodes, 2)
-edges = {}
-for node_pair in node_pairs:
-    node_start, node_end = node_pair
-    edges.setdefault(node_start, {})
-    edges[node_start][node_end] = \
-        len(astar( \
-            maze, \
-            waypoints[node_start], \
-            waypoints[node_end]
-        ))
+            cell = grid[position]
+            if cell in nodes and cell != start_node:
+                yield (cell, steps)
 
-nodes_besides_zero = nodes[1:]
-paths = permutations(nodes_besides_zero)
-cheapest_path = ()
-cheapest_cost = inf
-for path in paths:
-    cost = path_cost(path)
-    if cost < cheapest_cost:
-        print(f'Found cheaper path {cost}')
-        cheapest_path = path
-        cheapest_cost = cost
+            x, y = position
+            for x_offset, y_offset in (
+                (-1,  0),
+                ( 1,  0),
+                ( 0, -1),
+                ( 0,  1)
+            ):
+                neighbor = (x + x_offset, y + y_offset)
 
-print()
-print(' -> '.join(('0', ) + cheapest_path))
-print(cheapest_cost)
+                if (
+                    neighbor not in visited
+                    and grid.get(neighbor, '#') != '#'
+                ):
+                    new_positions_found.add(neighbor)
+
+        steps += 1
+        positions_to_crawl = new_positions_found
+
+edges = { node : {} for node in nodes }
+for node in nodes:
+    for other_node, steps in get_edges(node):
+        edges[node][other_node] = steps
+        edges[other_node][node] = steps
+
+def get_route_costs(node, visited=None, steps=0):
+    if visited is None:
+        visited = {node}
+    elif not set(nodes) - visited:
+        yield steps
+        return
+
+    for goal, edge in edges[node].items():
+        if goal not in visited:
+            yield from get_route_costs(
+                goal,
+                visited | {goal},
+                steps + edge
+            )
+
+print(min(get_route_costs('0')))

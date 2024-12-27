@@ -6,7 +6,6 @@ Skipped problems
 - 2016 19 (part 2)
 - 2016 22 (part 2)
 - 2016 23 (part 2)
-- 2016 24
 - 2017 23
 - 2018 12 (part 2)
 - 2018 14 (part 2)
