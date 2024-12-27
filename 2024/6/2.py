@@ -1,83 +1,65 @@
+INITIAL_X = None
+INITIAL_Y = None
+
 grid = {}
 y = 0
-
-initial_x = None
-initial_y = None
-
 while True:
     try:
         line = input()
     except EOFError:
         break
-    
+
     for x, cell in enumerate(line):
-        grid[ (x, y) ] = cell in '.^'
+        grid[ (x, y) ] = (cell != '#')
+
         if cell == '^':
-            initial_x = x
-            initial_y = y
+            assert (INITIAL_X, INITIAL_Y) == (None, None)
+            INITIAL_X, INITIAL_Y = (x, y)
 
     y += 1
 
-height = y
-width = len(line)
+HEIGHT = y
+WIDTH = len(line)
 
-print('height', height)
-print('width', width)
-
-offsets = (
-    # north
-    (0, -1),
-    # east
-    (1, 0),
-    # south
-    (0, 1),
-    # west
-    (-1, 0)
+facing = 0 # index into DIRECTIONS
+DIRECTIONS = (
+    ( 0, -1), # north
+    ( 1,  0), # east
+    ( 0,  1), # south
+    (-1,  0)  # west
 )
 
-def check(block_x, block_y):
+def has_loop(obstacle):
+    visited = set()
+
     facing = 0
-    visited = list()
-    guard_x = initial_x
-    guard_y = initial_y
-    i = 0
-    new_grid = grid.copy()
-    new_grid[(block_x, block_y)] = False
-    while guard_x in range(width) and guard_y in range(height):
-        i += 1
-        if i > 10_000:
-            return True
-        visited.append( (guard_x, guard_y) )
-        if visited[-5:] == visited[:5]:
-            return True
-        # print(len(visited), guard_x, guard_y)
-        x_offset, y_offset = offsets[facing]
-        target = new_grid.get( (guard_x + x_offset, guard_y + y_offset) )
-        if target is True:
-            guard_x += x_offset
-            guard_y += y_offset
-        elif target is None:
-            # print(guard_x, guard_y, 'NONE')
-            # break
+    guard_x = INITIAL_X
+    guard_y = INITIAL_Y
+    while (guard_x, guard_y, facing) not in visited:
+        if not (guard_x in range(WIDTH) and guard_y in range(HEIGHT)):
             return False
+
+        visited.add(
+            (guard_x, guard_y, facing)
+        )
+
+        x_offset, y_offset = DIRECTIONS[facing]
+        check_position = (guard_x + x_offset, guard_y + y_offset)
+
+        if check_position != obstacle and grid.get(check_position, True):
+            guard_x, guard_y = check_position
         else:
             facing = (facing + 1) % 4
 
-    # print(len(visited))
-    assert i < 10_000
-    return False
+    return True
 
-total = 0
-for x in range(width):
-    for y in range(height):
-        # print(x, y)
-        if x == 0: print(y)
-        if x == initial_x and y == initial_y:
-            print('  skip')
-            continue
-        
-        if check(x, y):
-            print('got', total)
-            total += 1
-
-print(total)
+print(
+    sum(
+        has_loop(
+            (x, y)
+        )
+        for x in range(WIDTH)
+        for y in range(HEIGHT)
+        if (x, y) != (INITIAL_X, INITIAL_Y) and grid[ (x, y) ]
+    )
+)
