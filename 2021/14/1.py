@@ -1,6 +1,10 @@
-from collections import defaultdict
+from collections import Counter
+from itertools import pairwise
 
-molecule = input()
+molecule_raw = input()
+*_, LAST_CHAR = molecule_raw
+
+molecule = Counter(pairwise(molecule_raw))
 input()
 
 rules = {}
@@ -11,25 +15,28 @@ while True:
         break
 
     start, end = line.split(' -> ')
-    rules[start] = end
+    rules[ tuple(start) ] = end
 
 def simulate_turn(molecule):
-    result = ''
-    for i, char in enumerate(molecule[:-1]):
-        next_char = molecule[i + 1]
-        insertion = rules[char + next_char]
+    result = Counter()
 
-        result += char + insertion
-    
-    result += molecule[-1]
+    for pair, count in molecule.items():
+        insertion = rules[pair]
+
+        first, second = pair
+        result[ (first, insertion) ] += count
+        result[ (insertion, second) ] += count
+
     return result
 
 for _ in range(10):
     molecule = simulate_turn(molecule)
 
-histogram = defaultdict(lambda: 0)
-for char in molecule:
-    histogram[char] += 1
+counter = Counter()
+for (first, _), count in molecule.items():
+    counter[first] += count
 
-frequencies = sorted(histogram.values())
-print(frequencies[-1] - frequencies[0])
+counter[LAST_CHAR] += 1
+
+(_, high_count), *_, (_, low_count) = counter.most_common()
+print(high_count - low_count)

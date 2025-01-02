@@ -2,6 +2,15 @@
 
 from operator import add, mul
 
+lines = []
+while True:
+    try:
+        line = input()
+    except EOFError:
+        break
+
+    lines.append(line)
+
 operators = {
     '+': add,
     '*': mul
@@ -45,14 +54,4 @@ def parse_expression(expression, cursor=0):
 
     return (cursor, left_operand)
 
-total = 0
-while True:
-    try:
-        line = input()
-    except EOFError:
-        break
-
-    _, evaluation = parse_expression(line)
-    total += evaluation
-
-print(total)
+print(sum( value for _, value in map(parse_expression, lines) ))
