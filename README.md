@@ -94,3 +94,4 @@ Other
 - replace occurrences of 'indeces' with 'indices'
 - for rewrites
   - replace astar function with the rewrite from 2016 13
+  - reconsider width = len(grid) ...
