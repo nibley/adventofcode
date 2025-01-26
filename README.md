@@ -56,7 +56,7 @@ Skipped problems
 - 2023 10 (part 2)
 - 2023 12 (part 2)
 - 2023 14 (part 2)
-- 2023 17
+- 2023 17 (part 2)
 - 2023 18 (part 2)
 - 2023 19 (part 2)
 - 2023 20 (part 2)
