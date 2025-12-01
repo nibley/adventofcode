@@ -12,6 +12,9 @@ while True:
 dial = 50
 password = 0
 for increment, turn in turns:
+    laps, turn = divmod(turn, 100)
+    password += laps
+
     for i in range(turn):
         dial += increment   
         dial %= 100
