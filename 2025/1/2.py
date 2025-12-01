@@ -5,18 +5,15 @@ while True:
     except EOFError:
         break
 
-    negative = line[0] == 'L'
-    turn = (-1 if negative else 1) * int(line[ 1 : ])
-    turns.append(turn)
+    increment = -1 if line[0] == 'L' else 1
+    turn = abs(int(line[ 1 : ]))
+    turns.append( (increment, turn) )
 
 dial = 50
 password = 0
-for turn in turns:
-    negative = turn < 0
-    turn = abs(turn)
-
+for increment, turn in turns:
     for i in range(turn):
-        dial += -1 if negative else 1    
+        dial += increment   
         dial %= 100
 
         if dial == 0:
