@@ -11,19 +11,17 @@ while True:
     ingredient_ranges.append(tuple(map(int, line.split('-'))))
 
 while True:
-    range_indices = range(len(ingredient_ranges))
     found_overlap = False
-    for first_index, second_index in combinations(range_indices, 2):
-        first_start, first_stop = ingredient_ranges[first_index]
-        second_start, second_stop = ingredient_ranges[second_index]
+    for first_range, second_range in combinations(ingredient_ranges, 2):
+        first_start, first_stop = first_range
+        second_start, second_stop = second_range
 
         if (
             first_start in range(second_start, second_stop + 1)
             or second_start in range(first_start, first_stop + 1)
         ):
-            first_index, second_index = sorted( (first_index, second_index) )
-            del ingredient_ranges[second_index]
-            del ingredient_ranges[first_index]
+            ingredient_ranges.remove(first_range)
+            ingredient_ranges.remove(second_range)
 
             ingredient_ranges.append(
                 (
