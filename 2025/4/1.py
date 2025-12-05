@@ -13,32 +13,28 @@ while True:
 HEIGHT = len(grid)
 WIDTH = len(line)
 
+direction_offsets = (
+    (-1, -1),
+    ( 0, -1),
+    ( 1, -1),
+    (-1,  0),
+    ( 1,  0),
+    (-1,  1),
+    ( 0,  1),
+    ( 1,  1)
+)
+
 def get_score(x, y):
     score = 0
 
-    if x > 0 and y > 0 and grid[y - 1][x - 1]:
-        score += 1
-    
-    if x < WIDTH - 1 and y > 0 and grid[y - 1][x + 1]:
-        score += 1
+    for x_offset, y_offset in direction_offsets:
+        neighbor_x = x + x_offset
+        neighbor_y = y + y_offset
+        if not (neighbor_x in range(WIDTH) and neighbor_y in range(HEIGHT)):
+            continue
 
-    if x > 0 and y < HEIGHT - 1 and grid[y + 1][x - 1]:
-        score += 1
-
-    if x < WIDTH - 1 and y < HEIGHT - 1 and grid[y + 1][x + 1]:
-        score += 1
-
-    if y > 0 and grid[y - 1][x]:
-        score += 1
-    
-    if y < HEIGHT - 1 and grid[y + 1][x]:
-        score += 1
-
-    if x > 0 and grid[y][x - 1]:
-        score += 1
-    
-    if x < WIDTH - 1 and grid[y][x + 1]:
-        score += 1
+        if grid[neighbor_y][neighbor_x]:
+            score += 1
 
     return score
 
