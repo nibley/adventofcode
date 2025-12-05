@@ -24,4 +24,4 @@ def is_fresh(ingredient_id):
     
     return False
 
-print(sum( is_fresh(ingredient_id) for ingredient_id in ingredient_ids ))
+print(sum(map(is_fresh, ingredient_ids)))
