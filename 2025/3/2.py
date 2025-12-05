@@ -8,23 +8,21 @@ while True:
         break
 
 def get_max_for_bank(bank):
+    score = 0
+
     cursor = 0
     limit = len(line) - 12 # next battery choice can't be past here
-    batteries = []
-
     for _ in range(12):
         i, battery = max(
             enumerate(bank[ cursor : limit + 1 ]),
             key = lambda pair: pair[1]
         )
-        batteries.append(battery)
+        score *= 10
+        score += battery
+
         limit += 1
         cursor += i + 1
     
-    return int(''.join(map(str, batteries)))
+    return score
 
-total = 0
-for bank in banks:
-    total += get_max_for_bank(bank)
-
-print(total)
+print(sum(map(get_max_for_bank, banks)))
