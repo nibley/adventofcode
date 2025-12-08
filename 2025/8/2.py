@@ -1,5 +1,4 @@
 from itertools import combinations
-from math import sqrt
 
 boxes = []
 
@@ -16,7 +15,7 @@ distances = {}
 for first_box, second_box in combinations(boxes, 2):
     first_x, first_y, first_z = first_box
     second_x, second_y, second_z = second_box
-    distance = sqrt(
+    distance = (
         (first_x - second_x) ** 2
         + (first_y - second_y) ** 2
         + (first_z - second_z) ** 2
@@ -34,7 +33,6 @@ final_length = None
 for connection in connections:
     boxes, _ = connection
     first_box, second_box = boxes
-
 
     first_group_id = groups[first_box]
     second_group_id = groups[second_box]
