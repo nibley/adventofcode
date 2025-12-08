@@ -45,8 +45,5 @@ for connection in connections:
         for box, group_id in groups.items()
     }
 
-boxes_per_group = Counter()
-for box, group_id in groups.items():
-    boxes_per_group[group_id] += 1
-
+boxes_per_group = Counter(groups.values())
 print(reduce(mul, [ frequency for _, frequency in boxes_per_group.most_common(3) ]))

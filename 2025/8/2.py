@@ -48,4 +48,5 @@ for connection in connections:
         final_length = first_x * second_x
         break
 
+assert final_length is not None
 print(final_length)
